@@ -704,6 +704,7 @@ const ICONS     = ['🩱','👙','🧘','🩳','👕','🩲','👗'];
 
 // ── Estado global ──────────────────────────────────────
 let catalogo=[], produtos=[], vendas=[], clientes=[], meta=6000;
+let varEditId=null, catFiltroProd='todas', catFiltroEstoque='todas', catFiltro='todas';
 let opcoes={categorias:[], tecidos:[], cores:[]};
 let fotos=[], fotosFiltro='todas', fotoDetalheAtual=null, atribuirFotoTarget=null;
 let nid=Date.now()%100000, eid=null, editMode=false;
@@ -892,8 +893,13 @@ function setSyncStatus(tipo,msg){
   document.getElementById('syncMsg').textContent=msg;
 }
 function renderTudo(){
-  renderDash(); renderCatalogo(); renderProdutos(); renderEstoque();
-  renderVendas(); renderClientes(); renderOpcoes(); renderFotos();
+  renderDash();
+  renderCatalogoProdutos();
+  renderEstoque();
+  renderVendas();
+  renderClientes();
+  renderOpcoes();
+  renderFotos();
   renderMktProdSel();
 }
 
@@ -1025,25 +1031,46 @@ function renderChart(){
 }
 
 // ── Catálogo (modelos) ─────────────────────────────────
-function renderCatalogo(){
-  const search=(document.getElementById('catSearchInp')?.value||'').toLowerCase();
-  const lst=catalogo.filter(c=>!search||(c.nome||'').toLowerCase().includes(search));
-  const el=document.getElementById('catalogoLista');
-  if(!lst.length){
-    el.innerHTML=`<div class="empty-state"><div class="empty-state-title">${catalogo.length?'nenhum modelo encontrado':'nenhum modelo cadastrado'}</div></div>`;
-    return;
-  }
-  el.innerHTML=lst.map(c=>{
-    const vars=produtos.filter(p=>String(p.catalogo_id||'')===String(c.id));
-    const est=vars.reduce((s,p)=>s+totalProdEst(p),0);
-    return `<div class="modelo-card" onclick="abrirModalCatalogo('${c.id}')">
-      <div class="modelo-top"><div class="modelo-name">${c.nome||''}</div><div class="modelo-cat">${c.categoria||''}</div></div>
-      <div class="modelo-info">
-        ${c.tecido?`<span><b>${c.tecido}</b></span>`:''}
-        <span>preço <b>${fmt(c.preco_padrao)}</b></span>
-        <span>custo <b>${fmt(c.custo_padrao)}</b></span>
+function renderCatalogo(){ renderCatalogoProdutos(); }
+function renderEstoque(){
+  const grid=document.getElementById('estoqueGrid');
+  const empty=document.getElementById('estoqueEmpty');
+  const filterEl=document.getElementById('catFilterEstoque');
+  if(!grid) return;
+  const comEst=produtos.filter(p=>totalProdEst(p)>0);
+  const cats=new Set(['todas']); comEst.forEach(p=>{ if(p.cat) cats.add(String(p.cat).toLowerCase()); });
+  if(filterEl) filterEl.innerHTML=Array.from(cats).map(c=>`<button type="button" class="pill${catFiltroEstoque===c?' on':''}" onclick="catFiltroEstoque='${c}';renderEstoque()">${c}</button>`).join('');
+  const search=(document.getElementById('searchInpEstoque')?.value||'').toLowerCase();
+  let filtered=comEst.filter(p=>{
+    if(catFiltroEstoque!=='todas'&&String(p.cat||'').toLowerCase()!==catFiltroEstoque) return false;
+    if(search&&!String(p.nome||'').toLowerCase().includes(search)&&!String(p.cor||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  if(!comEst.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  if(!filtered.length){ grid.innerHTML='<div class="empty"><div class="et">nenhum produto encontrado</div></div>'; return; }
+  const THUMBS2=['t-nude','t-sage','t-mid','t-warm','t-rose'];
+  const ICONS2=['🩱','👙','🧘','🩳','👕','🩲','👗'];
+  grid.innerHTML=filtered.map(p=>{
+    const sizes=parseSizes(p); const total=SIZES.reduce((s,sz)=>s+(parseInt(sizes[sz])||0),0);
+    let sc='sb-ok',st=total+' un.'; if(total===0){sc='sb-out';st='esgotado';}else if(total<=3){sc='sb-low';}
+    const ti=(parseInt(p.thumb)||0)%THUMBS2.length; const ii=(parseInt(p.icon)||0)%ICONS2.length;
+    const fotoUrl=getFotoPrincipal(p);
+    const thumbHtml=fotoUrl?`<img src="${fotoUrl}" loading="lazy">`:`<div class="pli-ph ${THUMBS2[ti]}">${ICONS2[ii]}</div>`;
+    const cat=findCat(p.catalogo_id||'');
+    const chips=SIZES.map(sz=>{ const q=parseInt(sizes[sz])||0; return `<span class="chip${q===0?' z':''}">${sz}:${q}</span>`; }).join('');
+    return `<div class="pli" onclick="abrirQsale('${p.id}')">
+      <div class="pli-t">${thumbHtml}</div>
+      <div class="pli-i">
+        <div class="pli-n">${p.nome||''}</div>
+        <div class="pli-m">${p.cor||''}${cat&&cat.tecido?' · '+cat.tecido:''}</div>
+        <div class="chips">${chips}</div>
+        <div class="pli-p">${fmt(p.preco)}</div>
       </div>
-      <div class="modelo-vars">${vars.length} variaç${vars.length===1?'ão':'ões'} · ${est} un. em estoque</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div class="pli-s ${sc}">${st}</div>
+        <button type="button" class="abtn g" style="width:30px;height:30px;border-radius:50%;background:rgba(92,138,118,.9);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRepos('${p.id}')" title="Repor">+</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1110,7 +1137,7 @@ function toggleEdit(){
   b.classList.toggle('on',editMode);
   renderProdutos();
 }
-let catFiltro='todas', catFiltroEstoque='todas';
+// catFiltroEstoque já declarado globalmente
 function getCategorias(){
   const cats=new Set(['todas']);
   produtos.forEach(p=>{ if(p.cat) cats.add(String(p.cat).toLowerCase()); });
@@ -1120,105 +1147,7 @@ function getCategorias(){
 function setCatFiltro(c){ catFiltro=c; renderProdutos(); }
 function setCatFiltroEstoque(c){ catFiltroEstoque=c; renderEstoque(); }
 
-function renderProdutos(){
-  const cats=getCategorias();
-  document.getElementById('catFilter').innerHTML=cats.map(c=>`<button class="cat-pill${catFiltro===c?' on':''}" onclick="setCatFiltro('${c}')">${c}</button>`).join('');
-  const search=(document.getElementById('searchInp')?.value||'').toLowerCase();
-  let filtered=produtos.filter(p=>{
-    if(catFiltro!=='todas'&&String(p.cat||'').toLowerCase()!==catFiltro) return false;
-    if(search&&!String(p.nome||'').toLowerCase().includes(search)&&!String(p.cor||'').toLowerCase().includes(search)) return false;
-    return true;
-  });
-  const grid=document.getElementById('prodGrid');
-  if(!filtered.length){
-    grid.innerHTML=`<div style="grid-column:1/-1" class="empty-state"><div class="empty-state-icon">👕</div><div class="empty-state-title">${produtos.length?'nenhum encontrado':'nenhuma variação ainda'}</div></div>`;
-    return;
-  }
-  grid.innerHTML=filtered.map(p=>prodCardHtml(p,true)).join('');
-}
-
-function renderEstoque(){
-  const grid=document.getElementById('estoqueGrid');
-  const empty=document.getElementById('estoqueEmpty');
-  if(!grid) return;
-  const comEst=produtos.filter(p=>totalProdEst(p)>0);
-  const catsSet=new Set(['todas']);
-  comEst.forEach(p=>{ if(p.cat) catsSet.add(String(p.cat).toLowerCase()); });
-  const filterEl=document.getElementById('catFilterEstoque');
-  if(filterEl) filterEl.innerHTML=Array.from(catsSet).map(c=>`<button class="cat-pill${catFiltroEstoque===c?' on':''}" onclick="setCatFiltroEstoque('${c}')">${c}</button>`).join('');
-  const search=(document.getElementById('searchInpEstoque')?.value||'').toLowerCase();
-  let filtered=comEst.filter(p=>{
-    if(catFiltroEstoque!=='todas'&&String(p.cat||'').toLowerCase()!==catFiltroEstoque) return false;
-    if(search&&!String(p.nome||'').toLowerCase().includes(search)&&!String(p.cor||'').toLowerCase().includes(search)) return false;
-    return true;
-  });
-  if(!comEst.length){ grid.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-  if(!filtered.length){ grid.innerHTML=`<div style="grid-column:1/-1" class="empty-state"><div class="empty-state-title">nenhum produto encontrado</div></div>`; return; }
-  grid.innerHTML=filtered.map(p=>prodCardHtml(p,false)).join('');
-}
-
-function prodCardHtml(p,showEdit){
-  const sizes=parseSizes(p);
-  const total=SIZES.reduce((s,sz)=>s+(parseInt(sizes[sz])||0),0);
-  let sc='sb-ok',st=total+' un.';
-  if(total===0){sc='sb-out';st='esgotado';}
-  else if(total<=3){sc='sb-low';}
-  const ti=(parseInt(p.thumb)||0)%THUMBS.length;
-  const ii=(parseInt(p.icon)||0)%ICONS.length;
-  const fotoUrl=getFotoPrincipal(p);
-  const thumbHtml=fotoUrl
-    ?`<img src="${fotoUrl}" loading="lazy" onerror="this.style.display='none'">`
-    :`<div class="prod-thumb-placeholder ${THUMBS[ti]}">${ICONS[ii]}</div>`;
-  const chips=SIZES.map(sz=>{ const q=parseInt(sizes[sz])||0; return `<span class="size-chip${q===0?' zero':''}">${sz}:${q}</span>`; }).join('');
-  return `<div class="prod-card" onclick="${showEdit&&editMode?`abrirModalProduto('${p.id}')`:`abrirQsale('${p.id}')`}">
-    <div class="prod-thumb">${thumbHtml}<span class="stk-badge ${sc}">${st}</span>
-      <div class="card-actions">
-        ${showEdit&&editMode
-          ?`<button class="card-action-btn" onclick="event.stopPropagation();abrirModalProduto('${p.id}')" title="Editar">✎</button>`
-          :`<button class="card-action-btn sage" onclick="event.stopPropagation();abrirQsale('${p.id}')" title="Vender">✦</button>`}
-        ${showEdit&&editMode?`<button class="card-action-btn" onclick="event.stopPropagation();abrirRepos('${p.id}')" title="Repor">+</button>`:''}
-      </div>
-    </div>
-    <div class="prod-info">
-      <div class="prod-name">${p.nome||''}</div>
-      ${p.cor?`<div class="prod-cor">${p.cor}</div>`:''}
-      <div class="prod-cat">${p.cat||''}</div>
-      <div class="prod-price">${fmt(p.preco)}</div>
-      <div class="prod-sizes-grid">${chips}</div>
-    </div>
-  </div>`;
-}
-
-function abrirModalProduto(id){
-  eid=id; prodCatalogoId=null;
-  document.getElementById('prodModalTitle').textContent=id?'editar variação':'nova variação';
-  document.getElementById('prodDelete').style.display=id?'block':'none';
-  document.getElementById('prodCatalogoName').textContent='escolher do catálogo';
-  ['prodPreco','prodCusto'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('prodCor').value='';
-  document.getElementById('prodCorSel').textContent='selecionar cor';
-  document.getElementById('prodCorSel').classList.add('placeholder');
-  SIZES.forEach(sz=>document.getElementById('qty-'+sz).textContent='0');
-  document.getElementById('fotoStatus').className='foto-status';
-  document.getElementById('fotoLinkRow').classList.add('hidden');
-  document.getElementById('prodSaveClose').style.display='none';
-  if(id){
-    const p=findProd(id);
-    if(p){
-      prodCatalogoId=p.catalogo_id||null;
-      const cat=findCat(prodCatalogoId||'');
-      document.getElementById('prodCatalogoName').textContent=cat?cat.nome:'sem modelo';
-      if(p.cor){ document.getElementById('prodCor').value=p.cor; document.getElementById('prodCorSel').textContent=p.cor; document.getElementById('prodCorSel').classList.remove('placeholder'); }
-      document.getElementById('prodPreco').value=p.preco||'';
-      document.getElementById('prodCusto').value=p.custo||'';
-      const sizes=parseSizes(p);
-      SIZES.forEach(sz=>document.getElementById('qty-'+sz).textContent=parseInt(sizes[sz])||0);
-    }
-  }
-  renderProdFotosGallery();
-  abrirModal('varModalOv');
-}
+function renderProdutos(){ renderCatalogoProdutos(); }
 function getSizes(){
   const s={};
   SIZES.forEach(sz=>s[sz]=parseInt(document.getElementById('qty-'+sz).textContent)||0);
@@ -2193,8 +2122,7 @@ function abrirModalNovoProduto(editId){
   }
   abrirModal('prodModalOv');
 }
-let varEditId = null;
-let catFiltroProd = 'todas', catFiltroEstoque = 'todas';
+
 
 </script>
 </body>
