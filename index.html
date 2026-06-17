@@ -285,9 +285,13 @@ body{display:flex;align-items:center;justify-content:center;}
 
 /* ══ MARKETING ══════════════════════════════════════════════ */
 .mtipos{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.mtipo,.mkt-tipo-card{background:#fff;border:1.5px solid var(--bg3);border-radius:var(--rs);padding:14px 12px;cursor:pointer;text-align:left;transition:all .15s;box-shadow:var(--sh);}
+.mtipo,.mkt-tipo-card{background:#fff;border:1.5px solid var(--bg3);border-radius:var(--rs);padding:16px 14px 14px;cursor:pointer;text-align:left;transition:all .15s;box-shadow:var(--sh);}
 .mtipo.on,.mkt-tipo-card.on{border-color:var(--sage);background:var(--sage-lll);}
 .mtico{font-size:22px;display:block;margin-bottom:5px;}
+/* marketing tipo icon svg */
+.mtico-svg{width:22px;height:22px;stroke:var(--ink3);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;margin-bottom:10px;}
+.mtipo.on .mtico-svg{stroke:var(--sage);}
+
 .mtn{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px;}
 .mtd{font-size:10px;color:var(--ink3);line-height:1.3;}
 .mfl{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);display:block;margin-bottom:7px;margin-top:16px;}
@@ -554,10 +558,10 @@ body{display:flex;align-items:center;justify-content:center;}
       <div id="mktWarn" class="mwrn" style="display:none">⚠ Configure a IA em <a onclick="abrirConfig()">configurações ⚙</a></div>
       <div class="slbl">tipo de post</div>
       <div class="mtipos">
-        <button type="button" class="mtipo on" data-tipo="produto" onclick="setMktTipo('produto',this)"><span class="mtico">🛍</span><div class="mtn">Produto novo</div><div class="mtd">anuncia uma peça</div></button>
-        <button type="button" class="mtipo" data-tipo="look" onclick="setMktTipo('look',this)"><span class="mtico">✨</span><div class="mtn">Look do dia</div><div class="mtd">combinação de peças</div></button>
-        <button type="button" class="mtipo" data-tipo="dica" onclick="setMktTipo('dica',this)"><span class="mtico">💡</span><div class="mtn">Dica fitness</div><div class="mtd">conteúdo educativo</div></button>
-        <button type="button" class="mtipo" data-tipo="motivacional" onclick="setMktTipo('motivacional',this)"><span class="mtico">💗</span><div class="mtn">Motivacional</div><div class="mtd">autoestima</div></button>
+        <button type="button" class="mtipo on" data-tipo="produto" onclick="setMktTipo('produto',this)"><svg viewBox="0 0 24 24" class="mtico-svg"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><div class="mtn">Produto novo</div><div class="mtd">anuncia uma peça</div></button>
+        <button type="button" class="mtipo" data-tipo="look" onclick="setMktTipo('look',this)"><svg viewBox="0 0 24 24" class="mtico-svg"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg><div class="mtn">Look do dia</div><div class="mtd">combinação de peças</div></button>
+        <button type="button" class="mtipo" data-tipo="dica" onclick="setMktTipo('dica',this)"><svg viewBox="0 0 24 24" class="mtico-svg"><path d="M12 2a7 7 0 0 1 7 7c0 2.64-1.47 4.93-3.64 6.17L15 17H9l-.36-1.83A7 7 0 0 1 12 2z"/><path d="M9 21h6"/><path d="M10 17v4"/><path d="M14 17v4"/></svg><div class="mtn">Dica fitness</div><div class="mtd">conteúdo educativo</div></button>
+        <button type="button" class="mtipo" data-tipo="motivacional" onclick="setMktTipo('motivacional',this)"><svg viewBox="0 0 24 24" class="mtico-svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><div class="mtn">Motivacional</div><div class="mtd">autoestima</div></button>
       </div>
       <div id="mktForm-produto" class="mft on">
         <div class="mfl">fonte</div>
@@ -1293,7 +1297,10 @@ function renderProdFotosGallery(){
   const cont=document.getElementById('prodFotosGallery');
   if(!cont) return;
   if(!eid){
-    cont.innerHTML='<div style="font-size:11px;color:var(--ink4);padding:8px 0">salve a variação primeiro para adicionar fotos</div>';
+    cont.innerHTML=`<div class="gal-add" onclick="document.getElementById('fotoFile').click()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span class="gal-add-text">foto</span>
+    </div><div style="font-size:10px;color:var(--ink4);padding:6px 2px;flex-basis:100%">salve a variação para ativar fotos</div>`;
     return;
   }
   const lista=fotosDoProduto(eid);
@@ -2177,12 +2184,12 @@ function renderCatalogoProdutos(){
     const corDot = cor => { const k = Object.keys(COR_MAP).find(k => (cor||'').toLowerCase().includes(k)); return k ? COR_MAP[k] : '#ccc'; };
     const varsHtml = vars.map(p => {
       const dot = corDot(p.cor||'');
-      return `<div class="cp-var" onclick="event.stopPropagation();${editMode?`abrirModalVariacao('${p.id}')`:`abrirQsale('${p.id}')`}">
+      return `<div class="cp-var" onclick="event.stopPropagation();abrirModalVariacao('${p.id}')">
         <div class="cp-vdot" style="background:${dot}"></div>
         <div class="cp-vi">${p.cor||'sem cor'} · ${totalProdEst(p)} un.</div>
       </div>`;
     }).join('');
-    return `<div class="cpcard" onclick="${editMode?`abrirModalNovoProduto('${cat.id}')`:``}">
+    return `<div class="cpcard" onclick="abrirModalNovoProduto('${cat.id}')">
       <div class="cp-h">
         <div><div class="cp-n">${cat.nome||''}</div><div class="cp-c">${cat.categoria||''}</div></div>
         <div style="text-align:right;flex-shrink:0">
