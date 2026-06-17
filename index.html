@@ -162,21 +162,30 @@ body{display:flex;align-items:center;justify-content:center;}
 .sb-out{background:rgba(255,218,218,.9);color:var(--err);}
 
 /* ══ CATÁLOGO ══════════════════════════════════════════════ */
-.cpcard{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--sh);cursor:pointer;transition:transform .1s;}
+.cpcard{background:#fff;border-radius:var(--r);padding:0;box-shadow:var(--sh);cursor:pointer;transition:box-shadow .15s;overflow:hidden;border:.5px solid var(--bg3);}
 .cpcard+.cpcard{margin-top:10px;}
-.cpcard:active{transform:scale(.99);}
-.cp-h{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
-.cp-n{font-family:var(--sans);font-size:16px;font-weight:600;font-style:normal;color:var(--ink);letter-spacing:-.01em;}
-.cp-c{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);margin-top:2px;}
-.cp-m{font-size:11px;color:var(--ink3);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
-.cp-m b{color:var(--ink);font-weight:600;}
+.cpcard:active{box-shadow:var(--sh2);}
+.cp-head-bar{height:3px;background:var(--bg3);}
+.cpcard:first-child .cp-head-bar{background:var(--sage-ll);}
+.cp-inner{padding:15px 16px 14px;}
+.cp-h{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+.cp-hl{flex:1;min-width:0;}
+.cp-n{font-family:var(--sans);font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.2;}
+.cp-c{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-top:3px;}
+.cp-hr{text-align:right;flex-shrink:0;padding-left:12px;}
+.cp-price{font-size:14px;font-weight:700;color:var(--ink);}
+.cp-stock{font-size:10px;color:var(--ink4);margin-top:2px;}
+.cp-divider{height:.5px;background:var(--bg2);margin:10px 0;}
+.cp-meta{font-size:11px;color:var(--ink3);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;}
+.cp-meta span{display:flex;align-items:center;gap:4px;}
+.cp-meta b{color:var(--ink);font-weight:600;}
 .cp-vars{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.cp-var{display:flex;align-items:center;gap:6px;background:var(--bg2);border-radius:8px;padding:5px 10px;cursor:pointer;transition:background .12s;}
+.cp-var{display:flex;align-items:center;gap:6px;background:var(--bg2);border-radius:20px;padding:5px 10px;cursor:pointer;transition:background .12s;border:.5px solid transparent;}
 .cp-var:active{background:var(--bg3);}
-.cp-vdot{width:10px;height:10px;border-radius:50%;border:.5px solid rgba(0,0,0,.1);flex-shrink:0;}
-.cp-vi{font-size:10px;color:var(--ink2);}
-.cp-addv{font-size:10px;font-weight:700;color:var(--sage);background:none;border:1.5px dashed var(--sage-ll);border-radius:8px;padding:5px 12px;cursor:pointer;transition:border-color .15s;}
-.cp-addv:hover,.cp-addv:active{border-color:var(--sage);}
+.cp-vdot{width:9px;height:9px;border-radius:50%;border:.5px solid rgba(0,0,0,.12);flex-shrink:0;}
+.cp-vi{font-size:10px;color:var(--ink2);font-weight:500;}
+.cp-addv{font-size:10px;font-weight:700;color:var(--sage);background:none;border:1.5px dashed var(--sage-ll);border-radius:20px;padding:5px 12px;cursor:pointer;transition:all .15s;}
+.cp-addv:hover,.cp-addv:active{border-color:var(--sage);background:var(--sage-lll);}
 .edit-chip{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);background:var(--bg2);border:none;border-radius:20px;padding:5px 12px;cursor:pointer;}
 .edit-chip.on{background:var(--ink);color:var(--bg);}
 
@@ -434,6 +443,39 @@ body{display:flex;align-items:center;justify-content:center;}
 .abtn{display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:opacity .15s;}.abtn:active{opacity:.75;}
 
 
+
+/* ══ LOG DE ATIVIDADES ═══════════════════════════════════════ */
+.log-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.log-overlay.show{display:flex;}
+.log-box{background:#fff;border-radius:26px 26px 0 0;width:100%;max-width:430px;max-height:72vh;display:flex;flex-direction:column;overflow:hidden;}
+.log-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;}
+.log-title{font-family:var(--sans);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+.log-close{width:32px;height:32px;border-radius:50%;background:var(--bg2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:18px;line-height:1;}
+.log-clear{font-size:10px;font-weight:600;color:var(--ink4);background:none;border:none;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;}
+.log-list{flex:1;overflow-y:auto;padding:12px 20px 32px;}
+.log-list::-webkit-scrollbar{width:3px;}
+.log-list::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:2px;}
+.log-empty{text-align:center;padding:40px 20px;color:var(--ink4);font-size:13px;}
+.log-item{display:flex;gap:12px;padding:12px 0;border-bottom:.5px solid var(--bg2);}
+.log-item:last-child{border-bottom:none;}
+.log-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:0;padding-top:3px;}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.log-dot.add{background:var(--sage);}
+.log-dot.edit{background:var(--gold);}
+.log-dot.del{background:var(--err);}
+.log-dot.sale{background:#3b82f6;}
+.log-dot.repo{background:var(--sage-l);}
+.log-dot.foto{background:var(--ink3);}
+.log-body{flex:1;min-width:0;}
+.log-action{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;}
+.log-detail{font-size:11px;color:var(--ink3);margin-top:2px;line-height:1.4;}
+.log-time{font-size:10px;color:var(--ink4);flex-shrink:0;padding-top:3px;}
+/* log badge no header */
+.log-badge{position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--sage);color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.hdr-btn-wrap{position:relative;display:inline-flex;}
+
+
+.var-foto-section{border-top:.5px solid var(--bg2);margin-top:8px;padding-top:4px;}
 </style>
 </head>
 <body>
@@ -455,6 +497,10 @@ body{display:flex;align-items:center;justify-content:center;}
     <div><div class="hdr-logo">meraki</div><div class="hdr-date" id="hdrDate"></div></div>
     <div class="hdr-r">
       <button type="button" class="hdr-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+      <div class="hdr-btn-wrap">
+        <button type="button" class="hdr-btn" id="logBtn" onclick="abrirLog()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></button>
+        <span class="log-badge" id="logBadge" style="display:none">0</span>
+      </div>
       <button type="button" class="hdr-btn" onclick="abrirConfig()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </div>
   </div>
@@ -623,16 +669,19 @@ body{display:flex;align-items:center;justify-content:center;}
 <!-- VARIAÇÃO -->
 <div class="mov" id="varModalOv"><div class="mbox">
   <div class="mtitle" id="varModalTitle">nova variação</div>
+
   <span class="mlbl">produto base</span>
   <div class="pickrow" onclick="abrirSelCatalogo()"><div><div class="pl">selecionar produto</div><div class="pv" id="prodCatalogoName">escolher...</div></div><span class="pa">›</span></div>
-  <span class="mlbl" style="margin-top:16px">fotos do produto <small style="text-transform:none;letter-spacing:0;font-size:9px;opacity:.6;font-weight:400">· 1ª = capa · arraste p/ reordenar</small></span>
-  <div class="fgal" id="prodFotosGallery"></div>
-  <input type="file" id="fotoFile" accept="image/*" multiple style="display:none" onchange="processarFotoProd(this)"/>
-  <div class="factions"><button type="button" class="fbtn" onclick="document.getElementById('fotoFile').click()">📷 enviar</button><button type="button" class="fbtn" onclick="toggleFotoLink()">🔗 link</button></div>
-  <div class="flinkrow" id="fotoLinkRow"><input id="fotoLink" placeholder="link da foto..."/><button type="button" onclick="aplicarLinkProd()">ok</button></div>
-  <div class="fstatus" id="fotoStatus"></div>
-  <span class="mlbl">cor</span><div class="sfield ph" id="varCorSel" onclick="abrirSelOpcao('cores','varCor','varCorSel')">selecionar cor</div><input type="hidden" id="varCor"/>
-  <div class="m2col"><div><span class="mlbl" style="margin-top:0">custo</span><input class="minput" id="varCusto" type="number" step="0.01" placeholder="0,00"/></div><div><span class="mlbl" style="margin-top:0">preço</span><input class="minput" id="varPreco" type="number" step="0.01" placeholder="0,00"/></div></div>
+
+  <span class="mlbl">cor</span>
+  <div class="sfield ph" id="varCorSel" onclick="abrirSelOpcao('cores','varCor','varCorSel')">selecionar cor</div>
+  <input type="hidden" id="varCor"/>
+
+  <div class="m2col">
+    <div><span class="mlbl" style="margin-top:0">custo</span><input class="minput" id="varCusto" type="number" step="0.01" placeholder="0,00"/></div>
+    <div><span class="mlbl" style="margin-top:0">preço venda</span><input class="minput" id="varPreco" type="number" step="0.01" placeholder="0,00"/></div>
+  </div>
+
   <span class="mlbl">estoque por tamanho</span>
   <div class="szgrid">
     <div class="szc"><div class="szlbl">P</div><div class="szctrl"><button type="button" class="szbtn" onclick="chgQty('P',-1)">−</button><div class="sznum" id="qty-P">0</div><button type="button" class="szbtn" onclick="chgQty('P',1)">+</button></div></div>
@@ -640,9 +689,27 @@ body{display:flex;align-items:center;justify-content:center;}
     <div class="szc"><div class="szlbl">G</div><div class="szctrl"><button type="button" class="szbtn" onclick="chgQty('G',-1)">−</button><div class="sznum" id="qty-G">0</div><button type="button" class="szbtn" onclick="chgQty('G',1)">+</button></div></div>
     <div class="szc"><div class="szlbl">GG</div><div class="szctrl"><button type="button" class="szbtn" onclick="chgQty('GG',-1)">−</button><div class="sznum" id="qty-GG">0</div><button type="button" class="szbtn" onclick="chgQty('GG',1)">+</button></div></div>
   </div>
-  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModal('varModalOv')">cancelar</button><button type="button" class="msave" onclick="salvarVariacao()">salvar variação</button></div>
+
+  <div class="mbtns" style="margin-top:20px">
+    <button type="button" class="mcancel" onclick="fecharModal('varModalOv')">cancelar</button>
+    <button type="button" class="msave" onclick="salvarVariacao()">salvar variação</button>
+  </div>
   <button type="button" class="mclose" id="varSaveClose" onclick="concluirVariacao()">✓ concluir e fechar</button>
   <button type="button" class="mdel" id="varDelete" style="display:none" onclick="deletarVariacao()">🗑 remover variação</button>
+
+  <div class="var-foto-section" id="varFotoSection">
+    <span class="mlbl" style="margin-top:20px">fotos <small style="text-transform:none;letter-spacing:0;font-size:9px;opacity:.55;font-weight:400">· 1ª = capa · arraste p/ reordenar</small></span>
+    <div class="fgal" id="prodFotosGallery"></div>
+    <input type="file" id="fotoFile" accept="image/*" multiple style="display:none" onchange="processarFotoProd(this)"/>
+    <div class="factions">
+      <button type="button" class="fbtn" onclick="document.getElementById('fotoFile').click()">
+        <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>enviar foto</button>
+      <button type="button" class="fbtn" onclick="toggleFotoLink()">
+        <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>via link</button>
+    </div>
+    <div class="flinkrow" id="fotoLinkRow"><input id="fotoLink" placeholder="https://..."/><button type="button" onclick="aplicarLinkProd()">ok</button></div>
+    <div class="fstatus" id="fotoStatus"></div>
+  </div>
 </div></div>
 
 <!-- VENDA -->
@@ -1205,7 +1272,9 @@ function salvarCatalogo(){
   else catalogo.push(item);
   saveLocal(); fecharModal('catModalOv'); renderCatalogo(); renderMktProdSel();
   sbPush('catalogo',item);
-  showToast(catEditId?'modelo atualizado ✦':'modelo criado ✦');
+  const _scAcao = catEditId ? 'produto editado' : 'produto criado';
+  addLog(catEditId?'edit':'add', _scAcao, `${item.nome} · ${item.categoria} · ${fmt(item.preco_padrao)}`);
+  showToast(catEditId?'produto atualizado ✦':'produto criado ✦');
 }
 function deletarCatalogo(){
   const c=findCat(catEditId);
@@ -1213,7 +1282,8 @@ function deletarCatalogo(){
   catalogo=catalogo.filter(x=>String(x.id)!==String(catEditId));
   sbPushDelete('catalogo',catEditId);
   saveLocal(); fecharModal('catModalOv'); renderCatalogo();
-  showToast('modelo removido');
+  addLog('del', 'produto removido', c.nome);
+  showToast('produto removido');
 }
 
 // ── Produtos (variações) ───────────────────────────────
@@ -1333,6 +1403,7 @@ function aplicarLinkProd(){
   sbPush('fotos',nf);
   saveLocal(); document.getElementById('fotoLink').value=''; document.getElementById('fotoLinkRow').classList.remove('show');
   renderProdFotosGallery(); renderProdutos(); renderEstoque();
+  addLog('foto','foto adicionada via link', eid?`produto id ${eid}`:'galeria');
   showToast('foto adicionada ✦');
 }
 async function processarFotoProd(input){
@@ -1649,6 +1720,7 @@ function confirmarVendaDireta(){
   sbPush('vendas',vendas[0]);
   sbPush('produtos',p);
   fecharModal('qsaleOv');
+  addLog('sale', 'venda registrada', `${p.nome+(p.cor?' · '+p.cor:'')} · tam ${qsaleTamanho} · ${fmt(valor)} · ${qsaleFormaPagto}${qsaleClienteSel?' · '+qsaleClienteSel.nome:''}`);
   showToast(`${fmt(valor)} registrado ✦`);
 }
 
@@ -1677,6 +1749,7 @@ function confirmarRepos(){
   p.sizes=JSON.stringify(atual); p.estoque=SIZES.reduce((s,sz)=>s+(parseInt(atual[sz])||0),0);
   saveLocal(); fecharModal('reposOv'); renderProdutos(); renderEstoque(); renderDash();
   sbPush('produtos',p);
+  addLog('repo', 'estoque reposto', `+${totalAdd} un. · ${p.nome+(p.cor?' · '+p.cor:'')}`);
   showToast(`+${totalAdd} un. adicionadas ✦`);
 }
 
@@ -1739,16 +1812,20 @@ function salvarCliente(){
   const nome=(document.getElementById('cliNome').value||'').trim();
   if(!nome){ showToast('informe o nome'); return; }
   const item={id:cliEditId||('c'+(nid++)),nome,zap:(document.getElementById('cliZap').value||'').trim(),criado_em:cliEditId?(findCli(cliEditId)||{}).criado_em||hoje():hoje()};
+  const _cliIsEdit = !!cliEditId;
   if(cliEditId){ const idx=clientes.findIndex(x=>String(x.id)===String(cliEditId)); if(idx>=0) clientes[idx]=item; }
   else clientes.push(item);
   sbPush('clientes',item);
+  addLog(_cliIsEdit?'edit':'add', _cliIsEdit?'cliente editado':'cliente adicionado', item.nome+(item.zap?' · '+item.zap:''));
   saveLocal(); fecharModal('cliOv'); renderClientes();
-  showToast(cliEditId?'cliente atualizado ✦':'cliente adicionado ✦');
+  showToast(_cliIsEdit?'cliente atualizado ✦':'cliente adicionado ✦');
 }
 function deletarCliente(){
   if(!cliEditId||!confirm('Remover este cliente?')) return;
+  const _dc=findCli(cliEditId);
   sbPushDelete('clientes',cliEditId);
   clientes=clientes.filter(x=>String(x.id)!==String(cliEditId));
+  if(_dc) addLog('del','cliente removido',_dc.nome);
   saveLocal(); fecharModal('cliOv'); renderClientes();
   showToast('cliente removido');
 }
@@ -2157,8 +2234,14 @@ function salvarVariacao(){
     renderProdFotosGallery();
   }
   saveLocal(); renderCatalogoProdutos(); renderEstoque(); renderDash();
-  document.getElementById('varSaveClose').style.display = 'block';
-  showToast('variação salva ✦ · adicione fotos abaixo');
+  // Auto-close and log
+  const _svP = findProd(varEditId);
+  const _svSizes = getSizes();
+  const _svEst = SIZES.map(sz=>{ const q=_svSizes[sz]||0; return q>0?`${sz}:${q}`:null; }).filter(Boolean).join(' · ');
+  const _svAcao = varEditId && varEditId !== eid ? 'variação editada' : 'variação criada';
+  addLog(varEditId && varEditId !== eid ? 'edit' : 'add', _svAcao,
+    `${_svP?_svP.nome:''}${_svP&&_svP.cor?' · '+_svP.cor:''} · estoque: ${_svEst||'0'} · ${fmt(parseFloat(document.getElementById('varPreco').value)||0)}`);
+  concluirVariacao();
 }
 function deletarVariacao(){
   const p = findProd(varEditId);
@@ -2167,6 +2250,7 @@ function deletarVariacao(){
   produtos = produtos.filter(x => String(x.id) !== String(varEditId));
   sbPushDel('produtos', varEditId);
   saveLocal(); fecharModal('varModalOv'); renderCatalogoProdutos(); renderEstoque(); renderDash();
+  addLog('del', 'variação removida', p.nome + (p.cor?' · '+p.cor:''));
   showToast('variação removida');
 }
 function renderCatalogoProdutos(){
@@ -2191,19 +2275,20 @@ function renderCatalogoProdutos(){
       const dot = corDot(p.cor||'');
       return `<div class="cp-var" onclick="event.stopPropagation();abrirModalVariacao('${p.id}')">
         <div class="cp-vdot" style="background:${dot}"></div>
-        <div class="cp-vi">${p.cor||'sem cor'} · ${totalProdEst(p)} un.</div>
+        <div class="cp-vi">${p.cor||'sem cor'} · ${totalProdEst(p)}</div>
       </div>`;
     }).join('');
     return `<div class="cpcard" onclick="abrirModalNovoProduto('${cat.id}')">
-      <div class="cp-h">
-        <div><div class="cp-n">${cat.nome||''}</div><div class="cp-c">${cat.categoria||''}</div></div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:12px;font-weight:600;color:var(--ink)">${fmt(cat.preco_padrao)}</div>
-          <div style="font-size:9px;color:var(--ink3);margin-top:2px">${est} un.</div>
+      <div class="cp-head-bar"></div>
+      <div class="cp-inner">
+        <div class="cp-h">
+          <div class="cp-hl"><div class="cp-n">${cat.nome||''}</div><div class="cp-c">${cat.categoria||''}</div></div>
+          <div class="cp-hr"><div class="cp-price">${fmt(cat.preco_padrao)}</div><div class="cp-stock">${est} un. total</div></div>
         </div>
+        <div class="cp-divider"></div>
+        <div class="cp-meta"><span>Tecido: <b>${cat.tecido||'—'}</b></span><span>Custo: <b>${fmt(cat.custo_padrao)}</b></span></div>
+        <div class="cp-vars">${varsHtml}<button type="button" class="cp-addv" onclick="event.stopPropagation();abrirModalVariacao(null,'${cat.id}')">+ variação</button></div>
       </div>
-      <div class="cp-m"><span>Tecido: <b>${cat.tecido||'—'}</b></span><span>Custo: <b>${fmt(cat.custo_padrao)}</b></span></div>
-      <div class="cp-vars">${varsHtml}<button type="button" class="cp-addv" onclick="event.stopPropagation();abrirModalVariacao(null,'${cat.id}')">+ variação</button></div>
     </div>`;
   }).join('');
 }
@@ -2235,6 +2320,60 @@ function abrirModalNovoProduto(editId){
   abrirModal('prodModalOv');
 }
 
+
+
+// ── Log de atividades ──────────────────────────────────────
+let actLog = [];
+function logNow(){ const n=new Date(); return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
+function addLog(tipo, action, detail){
+  actLog.unshift({ tipo, action, detail, time: logNow(), date: hoje() });
+  if(actLog.length > 200) actLog.length = 200;
+  updateLogBadge();
+}
+function updateLogBadge(){
+  const badge = document.getElementById('logBadge');
+  if(!badge) return;
+  const count = actLog.length;
+  if(count > 0){ badge.textContent = count > 99 ? '99+' : count; badge.style.display = 'flex'; }
+  else badge.style.display = 'none';
+}
+function abrirLog(){
+  renderLog();
+  const el = document.getElementById('logOv');
+  if(el){ el.classList.add('show'); }
+}
+function fecharLog(){
+  const el = document.getElementById('logOv');
+  if(el){ el.classList.remove('show'); el.style.display=''; }
+  // Reset badge when user views log
+  updateLogBadge();
+}
+function limparLog(){
+  if(!actLog.length) return;
+  actLog = [];
+  updateLogBadge();
+  renderLog();
+}
+function renderLog(){
+  const el = document.getElementById('logList');
+  if(!el) return;
+  if(!actLog.length){
+    el.innerHTML = '<div class="log-empty">nenhuma atividade ainda</div>';
+    return;
+  }
+  const TIPO_MAP = { add:'add', edit:'edit', del:'del', sale:'sale', repo:'repo', foto:'foto' };
+  const DATE_MAP = {};
+  el.innerHTML = actLog.map((item, i) => {
+    let dateSep = '';
+    if(!DATE_MAP[item.date]){ DATE_MAP[item.date] = true; const d = item.date === hoje() ? 'hoje' : item.date.slice(5).replace('-','/'); dateSep = `<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink4);padding:10px 0 4px;${i===0?'padding-top:4px':''}">${d}</div>`; }
+    return dateSep + `<div class="log-item">
+      <div class="log-dot-wrap"><div class="log-dot ${TIPO_MAP[item.tipo]||'edit'}"></div></div>
+      <div class="log-body"><div class="log-action">${item.action}</div>${item.detail?`<div class="log-detail">${item.detail}</div>`:''}</div>
+      <div class="log-time">${item.time}</div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('logOv')?.addEventListener('click', function(e){ if(e.target===this) fecharLog(); });
 
 </script>
 </body>
