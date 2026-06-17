@@ -641,7 +641,7 @@ body{display:flex;align-items:center;justify-content:center;}
     <div class="szc"><div class="szlbl">GG</div><div class="szctrl"><button type="button" class="szbtn" onclick="chgQty('GG',-1)">−</button><div class="sznum" id="qty-GG">0</div><button type="button" class="szbtn" onclick="chgQty('GG',1)">+</button></div></div>
   </div>
   <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModal('varModalOv')">cancelar</button><button type="button" class="msave" onclick="salvarVariacao()">salvar variação</button></div>
-  <button type="button" class="mclose" id="varSaveClose" onclick="fecharModal('varModalOv')">✓ concluir e fechar</button>
+  <button type="button" class="mclose" id="varSaveClose" onclick="concluirVariacao()">✓ concluir e fechar</button>
   <button type="button" class="mdel" id="varDelete" style="display:none" onclick="deletarVariacao()">🗑 remover variação</button>
 </div></div>
 
@@ -1042,8 +1042,8 @@ function setMktSub(sub,btn){
 }
 
 // ── Modais ──────────────────────────────────────────────
-function abrirModal(id){ document.getElementById(id).classList.add('show'); }
-function fecharModal(id){ document.getElementById(id).classList.remove('show'); }
+function abrirModal(id){ const el=document.getElementById(id); if(el){el.classList.add('show');} }
+function fecharModal(id){ const el=document.getElementById(id); if(el){el.classList.remove('show');el.style.display='';} }
 
 // ── Dashboard ──────────────────────────────────────────
 function renderDash(){
@@ -2084,12 +2084,17 @@ function limparTodosDados(){
 
 // ── Fechar modal ao clicar fora ─────────────────────────
 document.querySelectorAll('.mov,.modal-ov').forEach(el=>{
-  el.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('show'); });
+  el.addEventListener('click',function(e){ if(e.target===this){ this.classList.remove('show'); this.style.display=''; } });
 });
 document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 window.addEventListener('load',()=>{ if(temSessao()){ document.getElementById('loginScreen').classList.add('hidden'); init(); } });
 
 // ── Novo Catálogo — aliases e funções ────────────────────
+function concluirVariacao(){
+  const el = document.getElementById('varModalOv');
+  if(el){ el.classList.remove('show'); el.style.display=''; }
+  renderCatalogoProdutos(); renderEstoque(); renderDash();
+}
 function abrirModalVariacao(varId, catId){
   // Modal de variação (cor + estoque + fotos)
   varEditId = varId || null;
