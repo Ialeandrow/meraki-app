@@ -1060,10 +1060,10 @@ let mktTipoAtual='produto', mktTomAtual='animado';
 let mktSourceAtual='catalogo';
 let mktFotoBase64=null, mktResultadoPendente=null;
 let marketingLog=[];
-let cloudName='', cloudPreset='';
+let cloudName='dd5ivmins', cloudPreset='meraki_unsigned';
 let zapCliAtual=null;
 let dragFotoId=null;
-let _sbUrl='', _sbKey='';
+let _sbUrl='https://opgffvhjgayennzumuxs.supabase.co', _sbKey='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2ZmdmhqZ2F5ZW5uenVtdXhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDMzNjAsImV4cCI6MjA5NzI3OTM2MH0.RAyQj0HkpFcaZYmW6nHKnxjowRaAleuQk9oToOMafps';
 
 // ── Supabase REST helpers ──────────────────────────────
 function sbHeaders(){ return {'apikey':_sbKey,'Authorization':'Bearer '+_sbKey,'Content-Type':'application/json','Prefer':'return=representation'}; }
@@ -1122,10 +1122,10 @@ function loadLocal(){
   iaProvider   = localStorage.getItem('mrk_ia_provider') || 'gemini';
   iaGeminiKey  = localStorage.getItem('mrk_gemini_key')  || '';
   iaClaudeKey  = localStorage.getItem('mrk_claude_key')  || '';
-  cloudName    = localStorage.getItem('mrk_cloud_name')  || '';
-  cloudPreset  = localStorage.getItem('mrk_cloud_preset')|| '';
-  _sbUrl       = localStorage.getItem('mrk_sb_url')      || '';
-  _sbKey       = localStorage.getItem('mrk_sb_key')      || '';
+  cloudName    = localStorage.getItem('mrk_cloud_name')  || 'dd5ivmins';
+  cloudPreset  = localStorage.getItem('mrk_cloud_preset')|| 'meraki_unsigned';
+  _sbUrl       = localStorage.getItem('mrk_sb_url')      || 'https://opgffvhjgayennzumuxs.supabase.co';
+  _sbKey       = localStorage.getItem('mrk_sb_key')      || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2ZmdmhqZ2F5ZW5uenVtdXhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDMzNjAsImV4cCI6MjA5NzI3OTM2MH0.RAyQj0HkpFcaZYmW6nHKnxjowRaAleuQk9oToOMafps';
   if(!opcoes.categorias) opcoes.categorias=[];
   if(!opcoes.tecidos)    opcoes.tecidos=[];
   if(!opcoes.cores)      opcoes.cores=[];
@@ -1184,6 +1184,15 @@ function pushOpcoes(){
   rows.forEach(r=>sbUpsert('opcoes',r).catch(()=>{}));
 }
 function pushConfig(chave,valor){ if(_sbUrl&&_sbKey) sbUpsert('config',{chave,valor}).catch(()=>{}); }
+
+// ── Chaves fixas (embutidas no build) ─────────────────
+// Supabase e Cloudinary pré-configurados
+(function(){
+  if(!localStorage.getItem('mrk_cloud_name'))   localStorage.setItem('mrk_cloud_name','dd5ivmins');
+  if(!localStorage.getItem('mrk_cloud_preset')) localStorage.setItem('mrk_cloud_preset','meraki_unsigned');
+    if(!localStorage.getItem('mrk_sb_url'))  localStorage.setItem('mrk_sb_url','https://opgffvhjgayennzumuxs.supabase.co');
+  if(!localStorage.getItem('mrk_sb_key'))  localStorage.setItem('mrk_sb_key','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2ZmdmhqZ2F5ZW5uenVtdXhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDMzNjAsImV4cCI6MjA5NzI3OTM2MH0.RAyQj0HkpFcaZYmW6nHKnxjowRaAleuQk9oToOMafps');
+})();
 
 // ── Sessão ─────────────────────────────────────────────
 function temSessao(){ return !!sessionStorage.getItem('mrk_sess'); }
