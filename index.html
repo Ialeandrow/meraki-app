@@ -478,6 +478,34 @@ body{display:flex;align-items:center;justify-content:center;}
 .var-foto-section{border-top:.5px solid var(--bg2);margin-top:8px;padding-top:4px;}
 .var-stock-hint{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink4);background:var(--bg2);border-radius:var(--rx);padding:10px 12px;margin-top:16px;line-height:1.4;}
 .var-stock-hint b{color:var(--ink3);font-weight:600;}
+
+/* ══ ESTOQUE INLINE CONTROLS ════════════════════════════ */
+.est-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;border:.5px solid var(--bg3);}
+.est-card-top{display:flex;align-items:center;gap:12px;padding:13px 14px 10px;cursor:pointer;}
+.est-thumb{width:46px;height:54px;border-radius:8px;background:var(--bg2);overflow:hidden;flex-shrink:0;}
+.est-thumb img{width:100%;height:100%;object-fit:cover;}
+.est-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink4);}
+.est-info{flex:1;min-width:0;}
+.est-name{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+.est-meta{font-size:10px;color:var(--ink3);margin-top:2px;}
+.est-price{font-size:13px;font-weight:700;color:var(--ink);margin-top:4px;}
+.est-badge{font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0;align-self:flex-start;}
+.est-divider{height:.5px;background:var(--bg2);margin:0 14px;}
+.est-sizes{display:flex;padding:10px 12px 12px;gap:6px;}
+.est-sz{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.est-sz-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink4);}
+.est-sz-ctrl{display:flex;align-items:center;gap:3px;}
+.est-sz-btn{width:26px;height:26px;border-radius:50%;background:var(--bg2);border:.5px solid var(--bg3);font-size:15px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-appearance:none;transition:background .1s;}
+.est-sz-btn:active{background:var(--bg3);}
+.est-sz-btn.plus{background:var(--sage-lll);border-color:var(--sage-ll);color:var(--sage);}
+.est-sz-btn.plus:active{background:var(--sage-ll);}
+.est-sz-num{font-size:14px;font-weight:700;color:var(--ink);min-width:20px;text-align:center;}
+.est-sz-num.zero{color:var(--bg4);}
+.est-footer{display:flex;border-top:.5px solid var(--bg2);}
+.est-footer-btn{flex:1;padding:10px 6px;border:none;background:none;font-size:10px;font-weight:700;color:var(--ink3);cursor:pointer;letter-spacing:.05em;text-transform:uppercase;font-family:var(--sans);transition:background .1s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.est-footer-btn:active{background:var(--bg2);}
+.est-footer-btn.sell{color:var(--sage);}
+.est-footer-btn + .est-footer-btn{border-left:.5px solid var(--bg2);}
 </style>
 </head>
 <body>
@@ -670,7 +698,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- VARIAÇÃO -->
 <div class="mov" id="varModalOv"><div class="mbox">
-  <div class="mtitle" id="varModalTitle">nova variação</div>
+  <div class="mtitle" id="varModalTitle">nova cor</div>
 
   <span class="mlbl">produto base</span>
   <div class="pickrow" onclick="abrirSelCatalogo()"><div><div class="pl">selecionar produto</div><div class="pv" id="prodCatalogoName">escolher...</div></div><span class="pa">›</span></div>
@@ -686,14 +714,14 @@ body{display:flex;align-items:center;justify-content:center;}
 
   <div class="var-stock-hint">
     <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Estoque por tamanho é gerenciado na aba <b>Estoque</b>
+    Quantidades por tamanho é gerenciado na aba <b>Estoque</b>
   </div>
   <div class="mbtns" style="margin-top:12px">
     <button type="button" class="mcancel" onclick="fecharModal('varModalOv')">cancelar</button>
-    <button type="button" class="msave" onclick="salvarVariacao()">salvar variação</button>
+    <button type="button" class="msave" onclick="salvarVariacao()">salvar cor</button>
   </div>
-  <button type="button" class="mclose" id="varSaveClose" onclick="concluirVariacao()">✓ concluir e fechar</button>
-  <button type="button" class="mdel" id="varDelete" style="display:none" onclick="deletarVariacao()">🗑 remover variação</button>
+  <button type="button" class="mclose" id="varSaveClose" onclick="concluirVariacao()">fechar</button>
+  <button type="button" class="mdel" id="varDelete" style="display:none" onclick="deletarVariacao()">🗑 remover cor</button>
 
   <div class="var-foto-section" id="varFotoSection">
     <span class="mlbl" style="margin-top:20px">fotos <small style="text-transform:none;letter-spacing:0;font-size:9px;opacity:.55;font-weight:400">· 1ª = capa · arraste p/ reordenar</small></span>
@@ -841,6 +869,21 @@ body{display:flex;align-items:center;justify-content:center;}
   <button type="button" class="cfgb cb-r" onclick="limparTodosDados()">⚠ limpar todos os dados</button>
   <div class="mbtns" style="margin-top:16px"><button type="button" class="mcancel" onclick="fecharModal('configOv')">fechar</button></div>
 </div></div>
+
+
+<!-- LOG DE ATIVIDADES -->
+<div class="log-overlay" id="logOv">
+  <div class="log-box">
+    <div class="log-head">
+      <div class="log-title">&#10022; log de atividades</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="log-clear" onclick="limparLog()">limpar</button>
+        <button class="log-close" onclick="fecharLog()">&#xD7;</button>
+      </div>
+    </div>
+    <div class="log-list" id="logList"></div>
+  </div>
+</div>
 
 <script>
 
@@ -1189,16 +1232,15 @@ function renderEstoque(){
   const empty=document.getElementById('estoqueEmpty');
   const filterEl=document.getElementById('catFilterEstoque');
   if(!grid) return;
-  const comEst=produtos.filter(p=>totalProdEst(p)>0);
-  const cats=new Set(['todas']); comEst.forEach(p=>{ if(p.cat) cats.add(String(p.cat).toLowerCase()); });
+  const cats=new Set(['todas']); produtos.forEach(p=>{ if(p.cat) cats.add(String(p.cat).toLowerCase()); });
   if(filterEl) filterEl.innerHTML=Array.from(cats).map(c=>`<button type="button" class="pill${catFiltroEstoque===c?' on':''}" onclick="catFiltroEstoque='${c}';renderEstoque()">${c}</button>`).join('');
   const search=(document.getElementById('searchInpEstoque')?.value||'').toLowerCase();
-  let filtered=comEst.filter(p=>{
+  let filtered=produtos.filter(p=>{
     if(catFiltroEstoque!=='todas'&&String(p.cat||'').toLowerCase()!==catFiltroEstoque) return false;
     if(search&&!String(p.nome||'').toLowerCase().includes(search)&&!String(p.cor||'').toLowerCase().includes(search)) return false;
     return true;
   });
-  if(!comEst.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  if(!produtos.length){ grid.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display='none';
   if(!filtered.length){ grid.innerHTML='<div class="empty"><div class="et">nenhum produto encontrado</div></div>'; return; }
   const THUMBS2=['t-nude','t-sage','t-mid','t-warm','t-rose'];
@@ -2140,7 +2182,7 @@ function abrirModalVariacao(varId, catId){
   varEditId = varId || null;
   eid = varId || null;
   prodCatalogoId = catId || null;
-  document.getElementById('varModalTitle').textContent = varId ? 'editar variação' : 'nova variação';
+  document.getElementById('varModalTitle').textContent = varId ? 'editar cor' : 'nova cor';
   document.getElementById('varDelete').style.display = varId ? 'block' : 'none';
   document.getElementById('varSaveClose').style.display = varId ? 'block' : 'none';
   document.getElementById('fotoStatus').className = 'fstatus';
@@ -2192,7 +2234,7 @@ function salvarVariacao(){
     const prod = {id:'p'+(nid++), catalogo_id:prodCatalogoId, nome:cat.nome, cat:cat.categoria, cor, preco, custo, estoque:0, sizes:emptySizes, thumb:Math.floor(Math.random()*5), icon:Math.floor(Math.random()*7), criado_em:hoje()};
     produtos.push(prod);
     eid = prod.id; varEditId = prod.id;
-    document.getElementById('varModalTitle').textContent = 'editar variação';
+    document.getElementById('varModalTitle').textContent = 'editar cor';
     document.getElementById('varDelete').style.display = 'block';
     sbPush('produtos', prod);
     renderProdFotosGallery();
@@ -2200,20 +2242,20 @@ function salvarVariacao(){
   saveLocal(); renderCatalogoProdutos(); renderEstoque(); renderDash();
   // Auto-close and log
   const _svP = findProd(varEditId);
-  const _svAcao = (varEditId && varEditId !== eid) ? 'variação editada' : 'variação criada';
+  const _svAcao = (varEditId && varEditId !== eid) ? 'cor editada' : 'cor criada';
   addLog((varEditId && varEditId !== eid) ? 'edit' : 'add', _svAcao,
     `${_svP?_svP.nome:''}${_svP&&_svP.cor?' · '+_svP.cor:''} · ${fmt(parseFloat(document.getElementById('varPreco').value)||0)}`);
   concluirVariacao();
 }
 function deletarVariacao(){
   const p = findProd(varEditId);
-  if(!p || !confirm('Remover esta variação?')) return;
+  if(!p || !confirm('Remover esta cor?')) return;
   fotos.filter(f => String(f.produto_id) === String(varEditId)).forEach(f => f.produto_id = 'LIXEIRA');
   produtos = produtos.filter(x => String(x.id) !== String(varEditId));
   sbPushDelete('produtos', varEditId);
   saveLocal(); fecharModal('varModalOv'); renderCatalogoProdutos(); renderEstoque(); renderDash();
-  addLog('del', 'variação removida', p.nome + (p.cor?' · '+p.cor:''));
-  showToast('variação removida');
+  addLog('del', 'cor removida', p.nome + (p.cor?' · '+p.cor:''));
+  showToast('cor removida');
 }
 function renderCatalogoProdutos(){
   const cats = new Set(['todas']);
@@ -2245,11 +2287,11 @@ function renderCatalogoProdutos(){
       <div class="cp-inner">
         <div class="cp-h">
           <div class="cp-hl"><div class="cp-n">${cat.nome||''}</div><div class="cp-c">${cat.categoria||''}</div></div>
-          <div class="cp-hr"><div class="cp-price">${fmt(cat.preco_padrao)}</div><div class="cp-stock">${nVars} variação${nVars!==1?'ões':''}</div></div>
+          <div class="cp-hr"><div class="cp-price">${fmt(cat.preco_padrao)}</div><div class="cp-stock">${nVars} cor${nVars!==1?'es':''}</div></div>
         </div>
         <div class="cp-divider"></div>
         <div class="cp-meta"><span>Tecido: <b>${cat.tecido||'—'}</b></span><span>Custo: <b>${fmt(cat.custo_padrao)}</b></span></div>
-        <div class="cp-vars">${varsHtml}<button type="button" class="cp-addv" onclick="event.stopPropagation();abrirModalVariacao(null,'${cat.id}')">+ variação</button></div>
+        <div class="cp-vars">${varsHtml}<button type="button" class="cp-addv" onclick="event.stopPropagation();abrirModalVariacao(null,'${cat.id}')">+ cor</button></div>
       </div>
     </div>`;
   }).join('');
@@ -2283,6 +2325,35 @@ function abrirModalNovoProduto(editId){
 }
 
 
+
+
+// ── Ajuste inline de estoque ─────────────────────────────
+function ajustarEst(prodId, sz, delta){
+  const p = findProd(prodId);
+  if(!p) return;
+  const sizes = parseSizes(p);
+  const novo = Math.max(0, (parseInt(sizes[sz])||0) + delta);
+  sizes[sz] = novo;
+  p.sizes = JSON.stringify(sizes);
+  p.estoque = SIZES.reduce((s,t)=>s+(parseInt(sizes[t])||0), 0);
+  const el = document.getElementById('estn-'+prodId+'-'+sz);
+  if(el){ el.textContent = novo; el.className = 'est-sz-num'+(novo===0?' zero':''); }
+  const card = el && el.closest('.est-card');
+  const badge = card && card.querySelector('.est-badge');
+  if(badge){
+    const tot = p.estoque;
+    badge.textContent = tot===0?'esgotado':tot+' un.';
+    badge.className = 'est-badge '+(tot===0?'sb-out':tot<=3?'sb-low':'sb-ok');
+  }
+  saveLocal(); sbPush('produtos', p);
+  clearTimeout(ajustarEst._t);
+  ajustarEst._t = setTimeout(()=>{
+    addLog(delta>0?'repo':'edit', delta>0?'estoque adicionado':'estoque reduzido',
+      (p.nome+(p.cor?' · '+p.cor:''))+' · '+sz+': '+novo+' un.');
+    renderDash();
+  }, 1000);
+}
+ajustarEst._t = null;
 
 // ── Log de atividades ──────────────────────────────────────
 let actLog = [];
