@@ -467,7 +467,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
     <!-- INÍCIO -->
     <div id="inicio" class="sec on">
-      <div id="syncBar" class="sync-bar loading" onclick="sincronizarLocal()">
+      <div id="syncBar" class="sync-bar loading" onclick="sincronizar()">
         <div class="sync-dot"></div>
         <span id="syncMsg">carregando...</span>
       </div>
@@ -981,6 +981,19 @@ body{display:flex;align-items:center;justify-content:center;}
 
     <hr class="cfg-divider"/>
 
+    <span class="modal-lbl">Supabase — banco de dados</span>
+    <p style="font-family:var(--sans);font-size:10px;color:var(--chumbo-light);margin-bottom:10px;line-height:1.6">
+      No Supabase: <b>Settings → API</b><br>
+      • <b>Project URL</b> (ex: https://abc.supabase.co)<br>
+      • <b>anon public</b> key — começa com <code style="font-size:9px;background:var(--off);padding:1px 4px;border-radius:3px">eyJ...</code>
+    </p>
+    <input class="cfg-inp" id="cfgSbUrl" placeholder="https://xxxxx.supabase.co" type="url"/>
+    <input class="cfg-inp" id="cfgSbKey" type="password" placeholder="eyJhbGci... (anon public key)"/>
+    <button class="cfg-btn cb-sage" id="cfgSbBtn" onclick="salvarSupabase()">salvar e sincronizar</button>
+    <div id="cfgSbStatus" class="cfg-status"></div>
+
+    <hr class="cfg-divider"/>
+
     <span class="modal-lbl">Cloudinary — upload de fotos</span>
     <p style="font-family:var(--sans);font-size:10px;color:var(--chumbo-light);margin-bottom:10px;line-height:1.5">Crie conta gratuita em <a href="https://cloudinary.com" target="_blank" style="color:var(--sage-dark);font-weight:600">cloudinary.com</a> e preencha abaixo:</p>
     <input class="cfg-inp" id="cfgCloudName" placeholder="Cloud Name (ex: meu-cloud)"/>
@@ -1021,7 +1034,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <script>
 // ══════════════════════════════════════════════════════
-//  MERAKI · GESTÃO v2.0 — localStorage + Cloudinary
+//  MERAKI · GESTÃO v3.0 — Supabase + Cloudinary + localStorage cache
 // ══════════════════════════════════════════════════════
 
 const SENHA_A   = 'meraki2024';
@@ -1050,8 +1063,40 @@ let marketingLog=[];
 let cloudName='', cloudPreset='';
 let zapCliAtual=null;
 let dragFotoId=null;
+let _sbUrl='', _sbKey='';
 
-// ── localStorage helpers ───────────────────────────────
+// ── Supabase REST helpers ──────────────────────────────
+function sbHeaders(){ return {'apikey':_sbKey,'Authorization':'Bearer '+_sbKey,'Content-Type':'application/json','Prefer':'return=representation'}; }
+function sbUrl(table,query){ return _sbUrl+'/rest/v1/'+table+(query?'?'+query:''); }
+
+async function sbGet(table,query){
+  if(!_sbUrl||!_sbKey) return null;
+  try{
+    const r=await fetch(sbUrl(table,query||''),{headers:sbHeaders()});
+    if(!r.ok) throw new Error(r.status);
+    return await r.json();
+  }catch(e){ console.warn('sbGet',table,e); return null; }
+}
+async function sbUpsert(table,data){
+  if(!_sbUrl||!_sbKey) return false;
+  try{
+    const r=await fetch(sbUrl(table,''),{
+      method:'POST',
+      headers:{...sbHeaders(),'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify(Array.isArray(data)?data:[data])
+    });
+    return r.ok||r.status===201||r.status===204;
+  }catch(e){ console.warn('sbUpsert',table,e); return false; }
+}
+async function sbDelete(table,id){
+  if(!_sbUrl||!_sbKey) return false;
+  try{
+    const r=await fetch(sbUrl(table,'id=eq.'+id),{method:'DELETE',headers:sbHeaders()});
+    return r.ok||r.status===204;
+  }catch(e){ console.warn('sbDelete',table,e); return false; }
+}
+
+// ── localStorage cache (funciona offline) ──────────────
 function saveLocal(){
   try{
     localStorage.setItem('mrk_catalogo',JSON.stringify(catalogo));
@@ -1079,10 +1124,66 @@ function loadLocal(){
   iaClaudeKey  = localStorage.getItem('mrk_claude_key')  || '';
   cloudName    = localStorage.getItem('mrk_cloud_name')  || '';
   cloudPreset  = localStorage.getItem('mrk_cloud_preset')|| '';
+  _sbUrl       = localStorage.getItem('mrk_sb_url')      || '';
+  _sbKey       = localStorage.getItem('mrk_sb_key')      || '';
   if(!opcoes.categorias) opcoes.categorias=[];
   if(!opcoes.tecidos)    opcoes.tecidos=[];
   if(!opcoes.cores)      opcoes.cores=[];
 }
+
+// ── Sync com Supabase ──────────────────────────────────
+async function sincronizar(){
+  if(!_sbUrl||!_sbKey){
+    setSyncStatus('ok','✦ local · configure Supabase nas ⚙ config');
+    return false;
+  }
+  setSyncStatus('loading','sincronizando...');
+  try{
+    const [cats,prods,vs,clis,opts,fts,cfg,mkt]=await Promise.all([
+      sbGet('catalogo','order=criado_em.asc'),
+      sbGet('produtos','order=criado_em.asc'),
+      sbGet('vendas','order=criado_em.desc&limit=300'),
+      sbGet('clientes','order=nome.asc'),
+      sbGet('opcoes','order=tipo.asc,valor.asc'),
+      sbGet('fotos','order=ordem.asc'),
+      sbGet('config'),
+      sbGet('marketing_log','order=criado_em.desc&limit=100')
+    ]);
+    if(cats===null) throw new Error('sem conexao');
+    catalogo = cats || [];
+    produtos = prods || [];
+    vendas   = vs   || [];
+    clientes = clis || [];
+    fotos    = fts  || [];
+    marketingLog = mkt || [];
+    if(opts&&opts.length){
+      opcoes={categorias:[],tecidos:[],cores:[]};
+      opts.forEach(o=>{ if(opcoes[o.tipo]) opcoes[o.tipo].push(o.valor); });
+    }
+    if(cfg&&cfg.length){
+      const cm=Object.fromEntries(cfg.map(c=>[c.chave,c.valor]));
+      if(cm.meta) meta=parseFloat(cm.meta)||meta;
+    }
+    saveLocal(); renderTudo();
+    const h=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    setSyncStatus('ok','✦ sincronizado · '+h);
+    return true;
+  }catch(e){
+    console.warn('sync:',e);
+    setSyncStatus('err','sem conexão · dados locais · toque para tentar');
+    return false;
+  }
+}
+
+function sbPush(table,data){ if(_sbUrl&&_sbKey) sbUpsert(table,data).catch(e=>console.warn(e)); }
+function sbPushDelete(table,id){ if(_sbUrl&&_sbKey) sbDelete(table,id).catch(e=>console.warn(e)); }
+function pushOpcoes(){
+  if(!_sbUrl||!_sbKey) return;
+  const rows=[];
+  Object.entries(opcoes).forEach(([tipo,vals])=>(vals||[]).forEach(v=>rows.push({tipo,valor:v})));
+  rows.forEach(r=>sbUpsert('opcoes',r).catch(()=>{}));
+}
+function pushConfig(chave,valor){ if(_sbUrl&&_sbKey) sbUpsert('config',{chave,valor}).catch(()=>{}); }
 
 // ── Sessão ─────────────────────────────────────────────
 function temSessao(){ return !!sessionStorage.getItem('mrk_sess'); }
@@ -1114,14 +1215,8 @@ function init(){
   const DIAS=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
   const MESES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
   document.getElementById('hdrDate').textContent=`${DIAS[now.getDay()]}, ${now.getDate()} de ${MESES[now.getMonth()]}`;
-  loadLocal();
-  sincronizarLocal();
-  renderTudo();
-}
-function sincronizarLocal(){
-  loadLocal();
-  renderTudo();
-  setSyncStatus('ok','✦ dados atualizados · salvo localmente');
+  loadLocal(); renderTudo();
+  sincronizar(); // tenta Supabase, cai no local se falhar
 }
 function setSyncStatus(tipo,msg){
   const bar=document.getElementById('syncBar');
@@ -1327,12 +1422,14 @@ function salvarCatalogo(){
   if(catEditId){ const idx=catalogo.findIndex(x=>String(x.id)===String(catEditId)); if(idx>=0) catalogo[idx]=item; }
   else catalogo.push(item);
   saveLocal(); fecharModal('catModalOv'); renderCatalogo(); renderMktProdSel();
+  sbPush('catalogo',item);
   showToast(catEditId?'modelo atualizado ✦':'modelo criado ✦');
 }
 function deletarCatalogo(){
   const c=findCat(catEditId);
   if(!c||!confirm(`Remover modelo "${c.nome}"?`)) return;
   catalogo=catalogo.filter(x=>String(x.id)!==String(catEditId));
+  sbPushDelete('catalogo',catEditId);
   saveLocal(); fecharModal('catModalOv'); renderCatalogo();
   showToast('modelo removido');
 }
@@ -1484,6 +1581,7 @@ function salvarProd(){
     renderProdFotosGallery();
   }
   saveLocal(); renderProdutos(); renderEstoque(); renderDash();
+  sbPush('produtos', eid ? findProd(eid) : produtos[produtos.length-1]);
   showToast('variação salva ✦ · adicione fotos abaixo');
   // Mantém modal aberto para adicionar fotos; botão "concluir" fecha
   document.getElementById('prodSaveClose').style.display='block';
@@ -1493,6 +1591,7 @@ function deletarProd(){
   if(!p||!confirm(`Remover "${p.nome}${p.cor?' · '+p.cor:''}"?`)) return;
   fotos.filter(f=>String(f.produto_id)===String(eid)).forEach(f=>f.produto_id='LIXEIRA');
   produtos=produtos.filter(x=>String(x.id)!==String(eid));
+  sbPushDelete('produtos',eid);
   saveLocal(); fecharModal('prodModalOv'); renderProdutos(); renderEstoque(); renderDash();
   showToast('variação removida');
 }
@@ -1526,7 +1625,9 @@ function aplicarLinkProd(){
   const link=document.getElementById('fotoLink').value.trim();
   if(!link||!eid){ showToast(!link?'cole um link primeiro':'salve a variação antes'); return; }
   const ordem=fotosDoProduto(eid).length;
-  fotos.unshift({id:'f'+Date.now()+Math.random().toString(36).slice(2,5),url:link,produto_id:eid,ordem,criado_em:hoje()});
+  const nf={id:'f'+Date.now()+Math.random().toString(36).slice(2,5),url:link,produto_id:eid,ordem,criado_em:hoje()};
+  fotos.unshift(nf);
+  sbPush('fotos',nf);
   saveLocal(); document.getElementById('fotoLink').value=''; document.getElementById('fotoLinkRow').classList.add('hidden');
   renderProdFotosGallery(); renderProdutos(); renderEstoque();
   showToast('foto adicionada ✦');
@@ -1544,7 +1645,9 @@ async function processarFotoProd(input){
       const url=cloudName&&cloudPreset?await uploadCloudinary(dataUrl,eid):dataUrl;
       if(url){
         const ordem=fotosDoProduto(eid).length;
-        fotos.unshift({id:'f'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,8),url,produto_id:eid,ordem,criado_em:hoje()});
+        const nf={id:'f'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,8),url,produto_id:eid,ordem,criado_em:hoje()};
+        fotos.unshift(nf);
+        sbPush('fotos',nf);
         saveLocal(); sucesso++;
       }
     }catch(e){ console.error(e); }
@@ -1592,7 +1695,7 @@ function dragFotoDrop(e,targetId){
 function removerFotoProduto(fid){
   if(!confirm('Remover esta foto?')) return;
   const f=fotos.find(x=>String(x.id)===String(fid));
-  if(f){ f.produto_id='LIXEIRA'; saveLocal(); renderProdFotosGallery(); renderProdutos(); renderEstoque(); renderFotos(); showToast('foto removida'); }
+  if(f){ f.produto_id='LIXEIRA'; sbPush('fotos',f); saveLocal(); renderProdFotosGallery(); renderProdutos(); renderEstoque(); renderFotos(); showToast('foto removida'); }
 }
 
 // ── Galeria de fotos (aba) ──────────────────────────────
@@ -1715,7 +1818,7 @@ function addOpcao(tipo){
   const inp=document.getElementById(ids[tipo]);
   const val=(inp?.value||'').trim();
   if(!val) return;
-  if(!(opcoes[tipo]||[]).includes(val)){ opcoes[tipo].push(val); saveLocal(); renderOpcoes(); inp.value=''; }
+  if(!(opcoes[tipo]||[]).includes(val)){ opcoes[tipo].push(val); saveLocal(); renderOpcoes(); inp.value=''; sbPush('opcoes',{tipo,valor:val}); }
   else{ showToast('já existe'); inp.value=''; }
 }
 function remOpcao(tipo,val){
@@ -1840,6 +1943,8 @@ function confirmarVendaDireta(){
     custo_unit:parseFloat(p.custo)||0
   });
   saveLocal(); renderProdutos(); renderVendas(); renderDash(); renderEstoque();
+  sbPush('vendas',vendas[0]);
+  sbPush('produtos',p);
   fecharModal('qsaleOv');
   showToast(`${fmt(valor)} registrado ✦`);
 }
@@ -1868,6 +1973,7 @@ function confirmarRepos(){
   if(!totalAdd){ showToast('informe quantidade'); return; }
   p.sizes=JSON.stringify(atual); p.estoque=SIZES.reduce((s,sz)=>s+(parseInt(atual[sz])||0),0);
   saveLocal(); fecharModal('reposOv'); renderProdutos(); renderEstoque(); renderDash();
+  sbPush('produtos',p);
   showToast(`+${totalAdd} un. adicionadas ✦`);
 }
 
@@ -1932,11 +2038,13 @@ function salvarCliente(){
   const item={id:cliEditId||('c'+(nid++)),nome,zap:(document.getElementById('cliZap').value||'').trim(),criado_em:cliEditId?(findCli(cliEditId)||{}).criado_em||hoje():hoje()};
   if(cliEditId){ const idx=clientes.findIndex(x=>String(x.id)===String(cliEditId)); if(idx>=0) clientes[idx]=item; }
   else clientes.push(item);
+  sbPush('clientes',item);
   saveLocal(); fecharModal('cliOv'); renderClientes();
   showToast(cliEditId?'cliente atualizado ✦':'cliente adicionado ✦');
 }
 function deletarCliente(){
   if(!cliEditId||!confirm('Remover este cliente?')) return;
+  sbPushDelete('clientes',cliEditId);
   clientes=clientes.filter(x=>String(x.id)!==String(cliEditId));
   saveLocal(); fecharModal('cliOv'); renderClientes();
   showToast('cliente removido');
@@ -2138,7 +2246,7 @@ function salvarPost(idx){
   const v=mktResultadoPendente.variacoes[idx];
   marketingLog.unshift({id:'mkt'+Date.now(),tipo:mktResultadoPendente.tipo,legenda:v.legenda||'',hashtags:(v.hashtags||[]).join(','),horario:v.horario_sugerido||'',cta:v.cta||'',criado_em:new Date().toISOString()});
   if(marketingLog.length>200) marketingLog.length=200;
-  saveLocal(); showToast('post salvo no histórico ✦');
+  saveLocal(); sbPush('marketing_log',marketingLog[0]); showToast('post salvo no histórico ✦');
 }
 function renderMarketingHistorico(){
   const el=document.getElementById('mktHistLista'); if(!el) return;
@@ -2168,11 +2276,16 @@ function abrirHistPost(id){
 function abrirConfig(){
   document.getElementById('cfgMeta').value=meta;
   document.getElementById('cfgWhatsapp').value=localStorage.getItem('mrk_zap_loja')||'';
+  document.getElementById('cfgSbUrl').value=_sbUrl;
+  document.getElementById('cfgSbKey').value=_sbKey;
   document.getElementById('cfgCloudName').value=cloudName;
   document.getElementById('cfgCloudPreset').value=cloudPreset;
   document.getElementById('cfgIaProvider').value=iaProvider;
   document.getElementById('cfgGeminiKey').value=iaGeminiKey;
   document.getElementById('cfgClaudeKey').value=iaClaudeKey;
+  const sbOk=_sbUrl&&_sbKey;
+  document.getElementById('cfgSbStatus').textContent=sbOk?'✦ Supabase configurado':'não configurado';
+  document.getElementById('cfgSbStatus').style.color=sbOk?'var(--sage-dark)':'var(--chumbo-light)';
   toggleIaBoxes();
   abrirModal('configOv');
 }
@@ -2181,7 +2294,32 @@ function toggleIaBoxes(){
   document.getElementById('cfgIaGeminiBox').style.display=prov==='gemini'?'block':'none';
   document.getElementById('cfgIaClaudeBox').style.display=prov==='claude'?'block':'none';
 }
-function salvarMeta(){ meta=parseFloat(document.getElementById('cfgMeta').value)||6000; localStorage.setItem('mrk_meta',meta); renderDash(); showToast('meta salva ✦'); }
+async function salvarSupabase(){
+  const url=(document.getElementById('cfgSbUrl').value||'').trim().replace(/\/$/,'');
+  const key=(document.getElementById('cfgSbKey').value||'').trim();
+  const statusEl=document.getElementById('cfgSbStatus');
+  const btn=document.getElementById('cfgSbBtn');
+  if(!url||!key){ statusEl.textContent='preencha URL e chave'; statusEl.style.color='var(--err)'; return; }
+  if(!url.includes('supabase.co')){ statusEl.textContent='URL parece inválida'; statusEl.style.color='var(--err)'; return; }
+  if(!key.startsWith('eyJ')){ statusEl.textContent='⚠ Use a anon key JWT (começa com eyJ) — não a sb_publishable_'; statusEl.style.color='var(--warn)'; return; }
+  btn.textContent='testando...'; btn.disabled=true;
+  try{
+    const r=await fetch(url+'/rest/v1/config?limit=1',{headers:{'apikey':key,'Authorization':'Bearer '+key}});
+    if(r.ok||r.status===406){
+      _sbUrl=url; _sbKey=key;
+      localStorage.setItem('mrk_sb_url',url); localStorage.setItem('mrk_sb_key',key);
+      statusEl.textContent='✦ conectado! sincronizando...'; statusEl.style.color='var(--sage-dark)';
+      await sincronizar();
+      showToast('Supabase conectado ✦');
+    }else{
+      statusEl.textContent='erro '+r.status+' · verifique a chave'; statusEl.style.color='var(--err)';
+    }
+  }catch(e){
+    statusEl.textContent='erro de conexão · '+e.message; statusEl.style.color='var(--err)';
+  }
+  btn.textContent='salvar e sincronizar'; btn.disabled=false;
+}
+function salvarMeta(){ meta=parseFloat(document.getElementById('cfgMeta').value)||6000; localStorage.setItem('mrk_meta',meta); pushConfig('meta',String(meta)); renderDash(); showToast('meta salva ✦'); }
 function salvarWhatsapp(){ const n=document.getElementById('cfgWhatsapp').value.trim(); localStorage.setItem('mrk_zap_loja',n); showToast('número salvo ✦'); }
 function salvarCloudinary(){
   cloudName=document.getElementById('cfgCloudName').value.trim();
