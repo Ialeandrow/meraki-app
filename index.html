@@ -364,6 +364,8 @@ body{display:flex;align-items:center;justify-content:center;}
 .msave:active{opacity:.85;}
 .mdel{width:100%;margin-top:10px;padding:13px;border:none;border-radius:var(--rx);background:rgba(192,57,43,.08);font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--err);cursor:pointer;}
 .mclose{width:100%;margin-top:8px;padding:14px;border:none;border-radius:var(--rx);background:var(--sage);font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;cursor:pointer;display:none;}
+.modal-x-close{position:sticky;top:0;float:right;width:36px;height:36px;border-radius:50%;background:var(--bg2);border:.5px solid var(--bg3);color:var(--ink3);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-bottom:-36px;margin-left:auto;z-index:10;flex-shrink:0;transition:background .12s;}
+.modal-x-close:active{background:var(--bg3);}
 
 /* ══ SIZES ══════════════════════════════════════════════════ */
 .szgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px;}
@@ -700,18 +702,34 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- PRODUTO BASE -->
 <div class="mov" id="prodModalOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModalComConfirm('prodModalOv')" title="Fechar">×</button>
   <div class="mtitle" id="prodModalTitle">novo produto</div>
   <span class="mlbl">nome do produto</span><input class="minput" id="catNome" placeholder="Ex: Top Cropped Mango"/>
   <span class="mlbl">categoria</span><div class="sfield ph" id="catCategoriaSel" onclick="abrirSelOpcao('categorias','catCategoria','catCategoriaSel')">selecionar categoria</div><input type="hidden" id="catCategoria"/>
   <span class="mlbl">tecido</span><div class="sfield ph" id="catTecidoSel" onclick="abrirSelOpcao('tecidos','catTecido','catTecidoSel')">selecionar tecido</div><input type="hidden" id="catTecido"/>
   <span class="mlbl">descrição (vitrine)</span><input class="minput" id="catDescricao" placeholder="Peça confortável para treinos..."/>
   <div class="m2col"><div><span class="mlbl" style="margin-top:0">custo padrão</span><input class="minput" id="catCusto" type="number" step="0.01" placeholder="0,00"/></div><div><span class="mlbl" style="margin-top:0">preço padrão</span><input class="minput" id="catPreco" type="number" step="0.01" placeholder="0,00"/></div></div>
-  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModal('prodModalOv')">cancelar</button><button type="button" class="msave" onclick="salvarCatalogo()">salvar produto</button></div>
+  <span class="mlbl" style="margin-top:16px">foto de capa <small style="font-size:9px;text-transform:none;letter-spacing:0;font-weight:400;opacity:.55">· opcional · pode adicionar mais após salvar</small></span>
+  <div id="catFotoPreviewWrap" style="display:none;margin-bottom:8px;position:relative;width:86px;height:86px;border-radius:10px;overflow:hidden;border:.5px solid var(--bg3);">
+    <img id="catFotoPreviewImg" style="width:100%;height:100%;object-fit:cover"/>
+    <button type="button" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(15,15,15,.82);color:#fff;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;" onclick="removerFotoNovoProduto()">×</button>
+  </div>
+  <div class="factions" style="margin-bottom:4px">
+    <button type="button" class="fbtn" onclick="document.getElementById('catFotoFileInput').click()">
+      <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>enviar foto</button>
+    <button type="button" class="fbtn" onclick="toggleCatFotoLink()">
+      <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>via link</button>
+  </div>
+  <input type="file" id="catFotoFileInput" accept="image/*" style="display:none" onchange="processarFotoNovoProduto(this)"/>
+  <div class="flinkrow" id="catFotoLinkRow"><input id="catFotoLink" placeholder="https://..."/><button type="button" onclick="aplicarCatFotoLink()">ok</button></div>
+  <div class="fstatus" id="catFotoStatus"></div>
+  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModalComConfirm('prodModalOv')">cancelar</button><button type="button" class="msave" onclick="salvarCatalogo()">salvar produto</button></div>
   <button type="button" class="mdel" id="catDelete" style="display:none" onclick="deletarCatalogo()">🗑 remover produto</button>
 </div></div>
 
 <!-- VARIAÇÃO -->
 <div class="mov" id="varModalOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModalComConfirm('varModalOv')" title="Fechar">×</button>
   <div class="mtitle" id="varModalTitle">nova cor</div>
 
   <span class="mlbl">produto base</span>
@@ -754,6 +772,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- VENDA -->
 <div class="mov" id="qsaleOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('qsaleOv')" title="Fechar">×</button>
   <div class="mtitle">registrar venda</div>
   <div class="qprod" id="qsaleProd"></div>
   <span class="mlbl" style="margin-top:0">tamanho</span>
@@ -774,15 +793,35 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- REPOSIÇÃO -->
 <div class="mov" id="reposOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('reposOv')" title="Fechar">×</button>
   <div class="mtitle">repor estoque</div>
   <div class="qprod" id="reposProd"></div>
   <span class="mlbl">adicionar ao estoque</span>
   <div class="szgrid" id="reposSizes"></div>
-  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModal('reposOv')">cancelar</button><button type="button" class="msave" onclick="confirmarRepos()">confirmar</button></div>
+  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModalComConfirm('reposOv')">cancelar</button><button type="button" class="msave" onclick="confirmarRepos()">confirmar</button></div>
+</div></div>
+
+<!-- REMOVER ESTOQUE -->
+<div class="mov" id="remEstOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('remEstOv')" title="Fechar">×</button>
+  <div class="mtitle">remover do estoque</div>
+  <div style="font-size:12px;color:var(--ink3);margin-bottom:14px;padding:10px 14px;background:rgba(192,57,43,.06);border-radius:var(--rx);line-height:1.5;">⚠ Remove unidades sem registrar venda. Use apenas para perdas, trocas ou ajustes de inventário.</div>
+  <div class="qprod" id="remEstProd"></div>
+  <span class="mlbl">remover do estoque</span>
+  <div class="szgrid" id="remEstSizes"></div>
+  <span class="mlbl">motivo</span>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px" id="remEstMotivos">
+    <button type="button" class="pb" onclick="setRemEstMotivo('perda',this)">Perda</button>
+    <button type="button" class="pb" onclick="setRemEstMotivo('troca',this)">Troca</button>
+    <button type="button" class="pb" onclick="setRemEstMotivo('ajuste',this)">Ajuste</button>
+    <button type="button" class="pb" onclick="setRemEstMotivo('outro',this)">Outro</button>
+  </div>
+  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModalComConfirm('remEstOv')">cancelar</button><button type="button" class="msave" style="background:var(--err)" onclick="confirmarRemoverEstoque()">confirmar remoção</button></div>
 </div></div>
 
 <!-- CLIENTE -->
 <div class="mov" id="cliOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModalComConfirm('cliOv')" title="Fechar">×</button>
   <div class="mtitle" id="cliTitle">novo cliente</div>
   <span class="mlbl">nome</span><input class="minput" id="cliNome" placeholder="Nome completo"/>
   <span class="mlbl">WhatsApp</span><input class="minput" id="cliZap" type="tel" placeholder="DDD + número"/>
@@ -792,6 +831,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- SEL CLIENTE -->
 <div class="mov" id="selCliOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('selCliOv')" title="Fechar">×</button>
   <div class="mtitle">escolher cliente</div>
   <div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="selCliSearch" placeholder="buscar..." oninput="renderSelCli()"/></div>
   <div class="sellist" id="selCliList" style="margin-top:8px"></div>
@@ -800,6 +840,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- SEL CATALOGO -->
 <div class="mov" id="selCatOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('selCatOv')" title="Fechar">×</button>
   <div class="mtitle">escolher produto</div>
   <div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="selCatSearch" placeholder="buscar..." oninput="renderSelCat()"/></div>
   <div class="sellist" id="selCatList" style="margin-top:8px"></div>
@@ -808,6 +849,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- SEL OPCAO -->
 <div class="mov" id="selOpcaoOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('selOpcaoOv')" title="Fechar">×</button>
   <div class="mtitle" id="selOpcaoTitle">selecionar</div>
   <div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="selOpcaoSearch" placeholder="buscar..." oninput="renderSelOpcao()"/></div>
   <div class="sellist" id="selOpcaoList" style="margin-top:8px"></div>
@@ -817,6 +859,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- FOTO DETALHE -->
 <div class="mov" id="fotoDetalheOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('fotoDetalheOv')" title="Fechar">×</button>
   <div class="mtitle">foto</div>
   <div class="fdi"><img id="fotoDetalheImg" style="width:100%;height:100%;object-fit:cover"/></div>
   <div class="fdinfo" id="fotoDetalheInfo"></div>
@@ -826,6 +869,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- ATRIBUIR FOTO -->
 <div class="mov" id="atribuirFotoOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('atribuirFotoOv')" title="Fechar">×</button>
   <div class="mtitle">atribuir foto</div>
   <div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="atribuirSearch" placeholder="buscar produto..." oninput="renderAtribuirList()"/></div>
   <div class="sellist" id="atribuirList" style="margin-top:8px"></div>
@@ -834,6 +878,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- WHATSAPP -->
 <div class="mov" id="zapOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModalComConfirm('zapOv')" title="Fechar">×</button>
   <div class="mtitle">enviar mensagem</div>
   <p style="font-size:12px;color:var(--ink3);margin-bottom:14px">Para: <span id="zapDestino" style="color:var(--ink);font-weight:600"></span></p>
   <span class="mlbl">mensagem rápida</span>
@@ -848,6 +893,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- CONFIG -->
 <div class="mov" id="configOv"><div class="mbox">
+  <button type="button" class="modal-x-close" onclick="fecharModal('configOv')" title="Fechar">×</button>
   <div class="mtitle">configurações</div>
   <span class="mlbl">Supabase — banco de dados</span>
   <p style="font-size:10px;color:var(--ink3);margin-bottom:10px;line-height:1.6">Settings → API → Project URL + anon key (eyJ...)</p>
@@ -865,6 +911,14 @@ body{display:flex;align-items:center;justify-content:center;}
   <span class="mlbl">meta mensal</span>
   <input class="cfgi" id="cfgMeta" type="number" placeholder="6000"/>
   <button type="button" class="cfgb cb-d" onclick="salvarMeta()">salvar meta</button>
+  <hr class="cfgd"/>
+  <span class="mlbl">controle de faturamento</span>
+  <p style="font-size:11px;color:var(--ink3);line-height:1.55;margin-bottom:12px">Gerencie os dados de vendas catalogados. Use em caso de testes ou para corrigir lançamentos incorretos.</p>
+  <div style="background:var(--bg2);border-radius:var(--rs);padding:14px;margin-bottom:10px">
+    <div style="font-size:11px;color:var(--ink3);margin-bottom:8px">Total de vendas registradas: <b id="cfgVendasCount" style="color:var(--ink)">0</b> &nbsp;·&nbsp; Faturamento total: <b id="cfgFaturamentoTotal" style="color:var(--sage)">R$ 0,00</b></div>
+    <button type="button" class="cfgb cb-d" style="margin-bottom:8px" onclick="zerarFaturamentoMesAtual()">🗑 zerar faturamento do mês atual</button>
+    <button type="button" class="cfgb cb-r" onclick="zerarTodoFaturamento()">⚠ zerar TODO o faturamento</button>
+  </div>
   <hr class="cfgd"/>
   <span class="mlbl">WhatsApp da loja</span>
   <input class="cfgi" id="cfgWhatsapp" type="tel" placeholder="62999991234"/>
@@ -1153,6 +1207,34 @@ function setMktSub(sub,btn){
 function abrirModal(id){ const el=document.getElementById(id); if(el){el.classList.add('show');} }
 function fecharModal(id){ const el=document.getElementById(id); if(el){el.classList.remove('show');el.style.display='';} }
 
+// Fechar com confirmação de salvar (para formulários com dados)
+function fecharModalComConfirm(id){
+  const formsWithData={
+    'prodModalOv': ()=>document.getElementById('catNome')?.value?.trim(),
+    'varModalOv': ()=>document.getElementById('varCor')?.value?.trim()||document.getElementById('varPreco')?.value?.trim(),
+    'cliOv': ()=>document.getElementById('cliNome')?.value?.trim(),
+    'qsaleOv': ()=>null,
+    'reposOv': ()=>null,
+    'remEstOv': ()=>null,
+    'configOv': ()=>null,
+    'zapOv': ()=>document.getElementById('zapMsg')?.value?.trim(),
+  };
+  const hasData=formsWithData[id]?formsWithData[id]():null;
+  if(hasData){
+    const resp=confirm('Deseja salvar as alterações antes de fechar?');
+    if(resp===true){
+      // trigger save based on modal
+      if(id==='prodModalOv') salvarCatalogo();
+      else if(id==='varModalOv') salvarVariacao();
+      else if(id==='cliOv') salvarCliente();
+      else if(id==='zapOv') enviarZap();
+      else fecharModal(id);
+      return;
+    }
+  }
+  fecharModal(id);
+}
+
 // ── Dashboard ──────────────────────────────────────────
 function renderDash(){
   const mes=new Date().getMonth(), ano=new Date().getFullYear();
@@ -1264,13 +1346,14 @@ function renderEstoque(){
       <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
         <div class="pli-s ${sc}">${st}</div>
         <button type="button" class="abtn g" style="width:30px;height:30px;border-radius:50%;background:rgba(92,138,118,.9);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRepos('${p.id}')" title="Repor">+</button>
+        <button type="button" class="abtn r" style="width:30px;height:30px;border-radius:50%;background:rgba(192,57,43,.15);color:var(--err);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRemoverEstoque('${p.id}')" title="Remover estoque">−</button>
       </div>
     </div>`;
   }).join('');
 }
 function abrirModalCatalogo(id){
   catEditId=id;
-  document.getElementById('catModalTitle').textContent=id?'editar modelo':'novo modelo';
+  document.getElementById('prodModalTitle').textContent=id?'editar modelo':'novo modelo';
   document.getElementById('catDelete').style.display=id?'block':'none';
   const catSel=document.getElementById('catCategoriaSel');
   const tecSel=document.getElementById('catTecidoSel');
@@ -1292,8 +1375,13 @@ function abrirModalCatalogo(id){
     ['catNome','catCategoria','catTecido','catDescricao','catCusto','catPreco'].forEach(i=>{ const el=document.getElementById(i); if(el) el.value=''; });
     catSel.textContent='selecionar categoria'; catSel.classList.add('placeholder');
     tecSel.textContent='selecionar tecido'; tecSel.classList.add('placeholder');
+    catFotoDataUrl=null;
+    const pw=document.getElementById('catFotoPreviewWrap'); if(pw) pw.style.display='none';
+    const pi=document.getElementById('catFotoPreviewImg'); if(pi) pi.src='';
+    const fs=document.getElementById('catFotoStatus'); if(fs) fs.className='fstatus';
+    const fl=document.getElementById('catFotoLinkRow'); if(fl) fl.classList.remove('show');
   }
-  abrirModal('catModalOv');
+  abrirModal('prodModalOv');
 }
 function salvarCatalogo(){
   const nome=document.getElementById('catNome').value.trim();
@@ -1310,18 +1398,21 @@ function salvarCatalogo(){
   };
   if(catEditId){ const idx=catalogo.findIndex(x=>String(x.id)===String(catEditId)); if(idx>=0) catalogo[idx]=item; }
   else catalogo.push(item);
-  saveLocal(); fecharModal('catModalOv'); renderCatalogo(); renderMktProdSel();
+  saveLocal(); fecharModal('prodModalOv'); renderCatalogo(); renderMktProdSel();
   sbPush('catalogo',item);
   const _scAcao = catEditId ? 'produto editado' : 'produto criado';
   addLog(catEditId?'edit':'add', _scAcao, `${item.nome} · ${item.categoria} · ${fmt(item.preco_padrao)}`);
   showToast(catEditId?'produto atualizado ✦':'produto criado ✦');
+  if(!catEditId && catFotoDataUrl){ anexarFotoAoProduto(item.id, catFotoDataUrl); catFotoDataUrl=null; }
 }
 function deletarCatalogo(){
   const c=findCat(catEditId);
   if(!c||!confirm(`Remover modelo "${c.nome}"?`)) return;
   catalogo=catalogo.filter(x=>String(x.id)!==String(catEditId));
   sbPushDelete('catalogo',catEditId);
-  saveLocal(); fecharModal('catModalOv'); renderCatalogo();
+  saveLocal();
+  fecharModal('prodModalOv');
+  renderCatalogo();
   addLog('del', 'produto removido', c.nome);
   showToast('produto removido');
 }
@@ -1758,6 +1849,44 @@ function confirmarRepos(){
   showToast(`+${totalAdd} un. adicionadas ✦`);
 }
 
+// ── Remover do estoque (sem venda) ─────────────────────
+let remEstProduto=null, remEstMotivo='ajuste';
+function abrirRemoverEstoque(id){
+  const p=findProd(id); if(!p) return;
+  remEstProduto=p; remEstMotivo='ajuste';
+  const fotoUrl=getFotoPrincipal(p);
+  const ti=(parseInt(p.thumb)||0)%THUMBS.length;
+  const thumbHtml=fotoUrl?`<img src="${fotoUrl}">`:`<div class="${THUMBS[ti]}" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink4)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.4"><path d="M20.38 18.01L13 10.28V8.5a2.5 2.5 0 1 0-3 0v.92L3.62 18c-.54.54-.16 1.5.6 1.5h16.17c.76 0 1.14-.96.6-1.5z"/></svg></div>`;
+  document.getElementById('remEstProd').innerHTML=`<div class="qsale-thumb">${thumbHtml}</div><div><div class="qsale-name">${p.nome}${p.cor?' · '+p.cor:''}</div><div class="qsale-preco">${fmt(p.preco)}</div></div>`;
+  const sizes=parseSizes(p);
+  document.getElementById('remEstSizes').innerHTML=SIZES.map(sz=>`<div class="size-col">
+    <div class="size-lbl">${sz}<br><small style="font-size:9px;font-weight:400;color:var(--chumbo-light)">atual: ${sizes[sz]||0}</small></div>
+    <div class="size-ctrl"><button class="size-btn" onclick="chgRemEst('${sz}',-1)">−</button><div class="size-num" id="rem-${sz}">0</div><button class="size-btn" onclick="chgRemEst('${sz}',1)">+</button></div>
+  </div>`).join('');
+  document.querySelectorAll('#remEstMotivos .pb').forEach(b=>b.classList.remove('on'));
+  document.querySelector('#remEstMotivos .pb')?.classList.add('on');
+  remEstMotivo='perda';
+  abrirModal('remEstOv');
+}
+function chgRemEst(sz,d){ const el=document.getElementById('rem-'+sz); el.textContent=Math.max(0,(parseInt(el.textContent)||0)+d); }
+function setRemEstMotivo(m,btn){ remEstMotivo=m; document.querySelectorAll('#remEstMotivos .pb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
+function confirmarRemoverEstoque(){
+  const p=remEstProduto; if(!p) return;
+  const atual=parseSizes(p); let totalRem=0;
+  SIZES.forEach(sz=>{
+    const rem=parseInt(document.getElementById('rem-'+sz).textContent)||0;
+    const novo=Math.max(0,(parseInt(atual[sz])||0)-rem);
+    totalRem+=Math.min(rem,parseInt(atual[sz])||0);
+    atual[sz]=novo;
+  });
+  if(!totalRem){ showToast('informe quantidade a remover'); return; }
+  p.sizes=JSON.stringify(atual); p.estoque=SIZES.reduce((s,sz)=>s+(parseInt(atual[sz])||0),0);
+  saveLocal(); fecharModal('remEstOv'); renderProdutos(); renderEstoque(); renderDash();
+  sbPush('produtos',p);
+  addLog('edit','estoque removido',`−${totalRem} un. · ${p.nome+(p.cor?' · '+p.cor:'')} · motivo: ${remEstMotivo}`);
+  showToast(`−${totalRem} un. removidas`);
+}
+
 // ── Vendas ─────────────────────────────────────────────
 function renderVendas(){
   const hoje_str=hoje();
@@ -2072,8 +2201,42 @@ function abrirConfig(){
   const sbOk=_sbUrl&&_sbKey;
   document.getElementById('cfgSbStatus').textContent=sbOk?'✦ Supabase configurado':'não configurado';
   document.getElementById('cfgSbStatus').style.color=sbOk?'var(--sage-dark)':'var(--chumbo-light)';
+  // Faturamento stats
+  const fatTotal=vendas.reduce((s,v)=>s+(parseFloat(v.preco)||0),0);
+  const cfgVc=document.getElementById('cfgVendasCount'); if(cfgVc) cfgVc.textContent=vendas.length;
+  const cfgFt=document.getElementById('cfgFaturamentoTotal'); if(cfgFt) cfgFt.textContent=fmt(fatTotal);
   toggleIaBoxes();
   abrirModal('configOv');
+}
+function zerarFaturamentoMesAtual(){
+  const mes=new Date().getMonth(), ano=new Date().getFullYear();
+  const antes=vendas.length;
+  const removidas=vendas.filter(v=>{
+    if(!v||!v.data) return false;
+    const d=new Date(String(v.data).slice(0,10)+'T12:00');
+    return d.getMonth()===mes&&d.getFullYear()===ano;
+  });
+  if(!removidas.length){ showToast('nenhuma venda neste mês'); return; }
+  if(!confirm(`Remover ${removidas.length} venda(s) do mês atual?\n\nEsta ação não pode ser desfeita.`)) return;
+  removidas.forEach(v=>sbPushDelete('vendas',v.id));
+  vendas=vendas.filter(v=>{
+    if(!v||!v.data) return true;
+    const d=new Date(String(v.data).slice(0,10)+'T12:00');
+    return !(d.getMonth()===mes&&d.getFullYear()===ano);
+  });
+  saveLocal(); renderTudo(); fecharModal('configOv');
+  addLog('del',`faturamento zerado`,`${removidas.length} venda(s) do mês atual removidas`);
+  showToast(`${removidas.length} venda(s) removidas`);
+}
+function zerarTodoFaturamento(){
+  if(!vendas.length){ showToast('nenhuma venda registrada'); return; }
+  if(!confirm(`⚠ ATENÇÃO\nRemover TODAS as ${vendas.length} venda(s) registradas?\n\nEsta ação não pode ser desfeita.`)) return;
+  vendas.forEach(v=>sbPushDelete('vendas',v.id));
+  const total=vendas.length;
+  vendas=[];
+  saveLocal(); renderTudo(); fecharModal('configOv');
+  addLog('del','todo faturamento zerado',`${total} venda(s) removidas`);
+  showToast('faturamento zerado');
 }
 function toggleIaBoxes(){
   const prov=document.getElementById('cfgIaProvider').value;
@@ -2165,8 +2328,14 @@ function limparTodosDados(){
 }
 
 // ── Fechar modal ao clicar fora ─────────────────────────
+const MODAIS_COM_FORM=['prodModalOv','varModalOv','cliOv','zapOv'];
 document.querySelectorAll('.mov,.modal-ov').forEach(el=>{
-  el.addEventListener('click',function(e){ if(e.target===this){ this.classList.remove('show'); this.style.display=''; } });
+  el.addEventListener('click',function(e){
+    if(e.target===this){
+      if(MODAIS_COM_FORM.includes(this.id)) fecharModalComConfirm(this.id);
+      else { this.classList.remove('show'); this.style.display=''; }
+    }
+  });
 });
 document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 window.addEventListener('load',()=>{ if(temSessao()){ document.getElementById('loginScreen').classList.add('hidden'); init(); } });
@@ -2320,6 +2489,11 @@ function abrirModalNovoProduto(editId){
     ['catNome','catCategoria','catTecido','catDescricao','catCusto','catPreco'].forEach(i => { const el = document.getElementById(i); if(el) el.value = ''; });
     catSel.textContent = 'selecionar categoria'; catSel.classList.add('ph');
     tecSel.textContent = 'selecionar tecido'; tecSel.classList.add('ph');
+    catFotoDataUrl=null;
+    const pw=document.getElementById('catFotoPreviewWrap'); if(pw) pw.style.display='none';
+    const pi=document.getElementById('catFotoPreviewImg'); if(pi) pi.src='';
+    const fs=document.getElementById('catFotoStatus'); if(fs) fs.className='fstatus';
+    const fl=document.getElementById('catFotoLinkRow'); if(fl) fl.classList.remove('show');
   }
   abrirModal('prodModalOv');
 }
@@ -2355,7 +2529,55 @@ function ajustarEst(prodId, sz, delta){
 }
 ajustarEst._t = null;
 
-// ── Log de atividades ──────────────────────────────────────
+// ── Foto no modal de novo produto ─────────────────────
+let catFotoDataUrl=null;
+function toggleCatFotoLink(){
+  document.getElementById('catFotoLinkRow').classList.toggle('show');
+}
+function aplicarCatFotoLink(){
+  const link=document.getElementById('catFotoLink').value.trim();
+  if(!link){ showToast('cole um link válido'); return; }
+  catFotoDataUrl='__link__'+link;
+  document.getElementById('catFotoPreviewImg').src=link;
+  document.getElementById('catFotoPreviewWrap').style.display='block';
+  document.getElementById('catFotoLinkRow').classList.remove('show');
+  document.getElementById('catFotoLink').value='';
+}
+async function processarFotoNovoProduto(input){
+  if(!input.files||!input.files.length) return;
+  const st=document.getElementById('catFotoStatus');
+  st.className='fstatus show loading'; st.textContent='preparando foto...';
+  try{
+    const dataUrl=await comprimirImagem(input.files[0],1000,0.85);
+    catFotoDataUrl=dataUrl;
+    document.getElementById('catFotoPreviewImg').src=dataUrl;
+    document.getElementById('catFotoPreviewWrap').style.display='block';
+    st.className='fstatus show ok'; st.textContent='foto pronta ✦';
+    setTimeout(()=>st.classList.remove('show'),2000);
+  }catch(e){ st.className='fstatus show err'; st.textContent='erro ao carregar foto'; }
+  input.value='';
+}
+function removerFotoNovoProduto(){
+  catFotoDataUrl=null;
+  document.getElementById('catFotoPreviewWrap').style.display='none';
+  document.getElementById('catFotoPreviewImg').src='';
+  document.getElementById('catFotoStatus').className='fstatus';
+}
+async function anexarFotoAoProduto(catId, dataUrl){
+  if(!dataUrl) return;
+  let url=dataUrl;
+  if(dataUrl.startsWith('__link__')){
+    url=dataUrl.slice(8);
+  } else if(cloudName&&cloudPreset){
+    url=await uploadCloudinary(dataUrl,catId)||dataUrl;
+  }
+  const ordem=fotos.filter(f=>String(f.produto_id)===String(catId)&&f.produto_id!=='LIXEIRA').length;
+  const nf={id:'f'+Date.now()+Math.random().toString(36).slice(2,8),url,produto_id:catId,ordem,criado_em:hoje()};
+  fotos.unshift(nf);
+  sbPush('fotos',nf);
+  saveLocal(); renderFotos();
+  addLog('foto','foto adicionada ao criar produto',catId);
+}
 let actLog = [];
 function logNow(){ const n=new Date(); return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
 function addLog(tipo, action, detail){
