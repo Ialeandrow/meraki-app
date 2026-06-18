@@ -805,18 +805,38 @@ body{display:flex;align-items:center;justify-content:center;}
 <div class="mov" id="remEstOv"><div class="mbox">
   <button type="button" class="modal-x-close" onclick="fecharModal('remEstOv')" title="Fechar">×</button>
   <div class="mtitle">remover do estoque</div>
-  <div style="font-size:12px;color:var(--ink3);margin-bottom:14px;padding:10px 14px;background:rgba(192,57,43,.06);border-radius:var(--rx);line-height:1.5;">⚠ Remove unidades sem registrar venda. Use apenas para perdas, trocas ou ajustes de inventário.</div>
   <div class="qprod" id="remEstProd"></div>
-  <span class="mlbl">remover do estoque</span>
-  <div class="szgrid" id="remEstSizes"></div>
-  <span class="mlbl">motivo</span>
+
+  <!-- Modo: por tamanho OU remover tudo -->
+  <div style="display:flex;gap:6px;margin-bottom:16px">
+    <button type="button" class="pb on" id="remEstModoTam" onclick="setRemEstModo('tamanho',this)">Por tamanho</button>
+    <button type="button" class="pb" id="remEstModoTudo" onclick="setRemEstModo('tudo',this)">Remover tudo</button>
+  </div>
+
+  <!-- Seção por tamanho -->
+  <div id="remEstSecTamanho">
+    <span class="mlbl">quantidade a remover por tamanho</span>
+    <div class="szgrid" id="remEstSizes"></div>
+  </div>
+
+  <!-- Seção remover tudo -->
+  <div id="remEstSecTudo" style="display:none">
+    <div style="font-size:13px;color:var(--ink3);padding:14px;background:rgba(192,57,43,.06);border-radius:var(--rx);line-height:1.6;margin-bottom:4px;">
+      Remove o produto <b style="color:var(--ink)">completamente do estoque</b>, independente de quantidades cadastradas por tamanho.
+    </div>
+  </div>
+
+  <span class="mlbl" style="margin-top:16px">motivo</span>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px" id="remEstMotivos">
-    <button type="button" class="pb" onclick="setRemEstMotivo('perda',this)">Perda</button>
+    <button type="button" class="pb on" onclick="setRemEstMotivo('perda',this)">Perda</button>
     <button type="button" class="pb" onclick="setRemEstMotivo('troca',this)">Troca</button>
     <button type="button" class="pb" onclick="setRemEstMotivo('ajuste',this)">Ajuste</button>
     <button type="button" class="pb" onclick="setRemEstMotivo('outro',this)">Outro</button>
   </div>
-  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModalComConfirm('remEstOv')">cancelar</button><button type="button" class="msave" style="background:var(--err)" onclick="confirmarRemoverEstoque()">confirmar remoção</button></div>
+  <div class="mbtns">
+    <button type="button" class="mcancel" onclick="fecharModal('remEstOv')">cancelar</button>
+    <button type="button" class="msave" style="background:var(--err)" onclick="confirmarRemoverEstoque()">confirmar remoção</button>
+  </div>
 </div></div>
 
 <!-- CLIENTE -->
@@ -1850,41 +1870,63 @@ function confirmarRepos(){
 }
 
 // ── Remover do estoque (sem venda) ─────────────────────
-let remEstProduto=null, remEstMotivo='ajuste';
+let remEstProduto=null, remEstMotivo='perda', remEstModo='tamanho';
 function abrirRemoverEstoque(id){
   const p=findProd(id); if(!p) return;
-  remEstProduto=p; remEstMotivo='ajuste';
+  remEstProduto=p; remEstMotivo='perda'; remEstModo='tamanho';
   const fotoUrl=getFotoPrincipal(p);
   const ti=(parseInt(p.thumb)||0)%THUMBS.length;
   const thumbHtml=fotoUrl?`<img src="${fotoUrl}">`:`<div class="${THUMBS[ti]}" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink4)"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.4"><path d="M20.38 18.01L13 10.28V8.5a2.5 2.5 0 1 0-3 0v.92L3.62 18c-.54.54-.16 1.5.6 1.5h16.17c.76 0 1.14-.96.6-1.5z"/></svg></div>`;
   document.getElementById('remEstProd').innerHTML=`<div class="qsale-thumb">${thumbHtml}</div><div><div class="qsale-name">${p.nome}${p.cor?' · '+p.cor:''}</div><div class="qsale-preco">${fmt(p.preco)}</div></div>`;
   const sizes=parseSizes(p);
   document.getElementById('remEstSizes').innerHTML=SIZES.map(sz=>`<div class="size-col">
-    <div class="size-lbl">${sz}<br><small style="font-size:9px;font-weight:400;color:var(--chumbo-light)">atual: ${sizes[sz]||0}</small></div>
+    <div class="size-lbl">${sz}<br><small style="font-size:9px;font-weight:400;color:var(--ink4)">atual: ${sizes[sz]||0}</small></div>
     <div class="size-ctrl"><button class="size-btn" onclick="chgRemEst('${sz}',-1)">−</button><div class="size-num" id="rem-${sz}">0</div><button class="size-btn" onclick="chgRemEst('${sz}',1)">+</button></div>
   </div>`).join('');
-  document.querySelectorAll('#remEstMotivos .pb').forEach(b=>b.classList.remove('on'));
-  document.querySelector('#remEstMotivos .pb')?.classList.add('on');
-  remEstMotivo='perda';
+  // reset modo buttons
+  document.getElementById('remEstModoTam')?.classList.add('on');
+  document.getElementById('remEstModoTudo')?.classList.remove('on');
+  document.getElementById('remEstSecTamanho').style.display='block';
+  document.getElementById('remEstSecTudo').style.display='none';
+  // reset motivo
+  document.querySelectorAll('#remEstMotivos .pb').forEach((b,i)=>b.classList.toggle('on',i===0));
   abrirModal('remEstOv');
+}
+function setRemEstModo(modo, btn){
+  remEstModo=modo;
+  document.getElementById('remEstModoTam')?.classList.toggle('on', modo==='tamanho');
+  document.getElementById('remEstModoTudo')?.classList.toggle('on', modo==='tudo');
+  document.getElementById('remEstSecTamanho').style.display=modo==='tamanho'?'block':'none';
+  document.getElementById('remEstSecTudo').style.display=modo==='tudo'?'block':'none';
 }
 function chgRemEst(sz,d){ const el=document.getElementById('rem-'+sz); el.textContent=Math.max(0,(parseInt(el.textContent)||0)+d); }
 function setRemEstMotivo(m,btn){ remEstMotivo=m; document.querySelectorAll('#remEstMotivos .pb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
 function confirmarRemoverEstoque(){
   const p=remEstProduto; if(!p) return;
-  const atual=parseSizes(p); let totalRem=0;
-  SIZES.forEach(sz=>{
-    const rem=parseInt(document.getElementById('rem-'+sz).textContent)||0;
-    const novo=Math.max(0,(parseInt(atual[sz])||0)-rem);
-    totalRem+=Math.min(rem,parseInt(atual[sz])||0);
-    atual[sz]=novo;
-  });
-  if(!totalRem){ showToast('informe quantidade a remover'); return; }
-  p.sizes=JSON.stringify(atual); p.estoque=SIZES.reduce((s,sz)=>s+(parseInt(atual[sz])||0),0);
-  saveLocal(); fecharModal('remEstOv'); renderProdutos(); renderEstoque(); renderDash();
-  sbPush('produtos',p);
-  addLog('edit','estoque removido',`−${totalRem} un. · ${p.nome+(p.cor?' · '+p.cor:'')} · motivo: ${remEstMotivo}`);
-  showToast(`−${totalRem} un. removidas`);
+  const atual=parseSizes(p);
+  let totalRem=0;
+  if(remEstModo==='tudo'){
+    // zera todos os tamanhos independente da quantidade
+    SIZES.forEach(sz=>{ totalRem+=(parseInt(atual[sz])||0); atual[sz]=0; });
+    // mesmo que totalRem seja 0, permite remover (produto sem estoque cadastrado)
+    p.sizes=JSON.stringify(atual); p.estoque=0;
+    saveLocal(); fecharModal('remEstOv'); renderProdutos(); renderEstoque(); renderDash();
+    sbPush('produtos',p);
+    addLog('edit','produto zerado do estoque',`${p.nome+(p.cor?' · '+p.cor:'')} · motivo: ${remEstMotivo}`);
+    showToast('produto removido do estoque');
+  } else {
+    SIZES.forEach(sz=>{
+      const rem=parseInt(document.getElementById('rem-'+sz).textContent)||0;
+      totalRem+=Math.min(rem,parseInt(atual[sz])||0);
+      atual[sz]=Math.max(0,(parseInt(atual[sz])||0)-rem);
+    });
+    if(!totalRem){ showToast('informe a quantidade a remover'); return; }
+    p.sizes=JSON.stringify(atual); p.estoque=SIZES.reduce((s,sz)=>s+(parseInt(atual[sz])||0),0);
+    saveLocal(); fecharModal('remEstOv'); renderProdutos(); renderEstoque(); renderDash();
+    sbPush('produtos',p);
+    addLog('edit','estoque removido',`−${totalRem} un. · ${p.nome+(p.cor?' · '+p.cor:'')} · motivo: ${remEstMotivo}`);
+    showToast(`−${totalRem} un. removidas`);
+  }
 }
 
 // ── Vendas ─────────────────────────────────────────────
