@@ -445,7 +445,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 
 /* ══ LOG DE ATIVIDADES ═══════════════════════════════════════ */
-.log-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.log-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:400;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
 .log-overlay.show{display:flex;}
 .log-box{background:#fff;border-radius:26px 26px 0 0;width:100%;max-width:430px;max-height:72vh;display:flex;flex-direction:column;overflow:hidden;}
 .log-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;}
@@ -511,6 +511,20 @@ body{display:flex;align-items:center;justify-content:center;}
 <body>
 <div class="shell">
 <div class="toast" id="toast"></div>
+
+<!-- LOG DE ATIVIDADES -->
+<div class="log-overlay" id="logOv">
+  <div class="log-box">
+    <div class="log-head">
+      <div class="log-title">&#10022; log de atividades</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="log-clear" onclick="limparLog()">limpar</button>
+        <button class="log-close" onclick="fecharLog()">&#xD7;</button>
+      </div>
+    </div>
+    <div class="log-list" id="logList"></div>
+  </div>
+</div>
 
 <!-- LOGIN -->
 <div class="login" id="loginScreen">
@@ -870,20 +884,6 @@ body{display:flex;align-items:center;justify-content:center;}
   <div class="mbtns" style="margin-top:16px"><button type="button" class="mcancel" onclick="fecharModal('configOv')">fechar</button></div>
 </div></div>
 
-
-<!-- LOG DE ATIVIDADES -->
-<div class="log-overlay" id="logOv">
-  <div class="log-box">
-    <div class="log-head">
-      <div class="log-title">&#10022; log de atividades</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="log-clear" onclick="limparLog()">limpar</button>
-        <button class="log-close" onclick="fecharLog()">&#xD7;</button>
-      </div>
-    </div>
-    <div class="log-list" id="logList"></div>
-  </div>
-</div>
 
 <script>
 
