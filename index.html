@@ -1902,29 +1902,39 @@ function setRemEstModo(modo, btn){
 function chgRemEst(sz,d){ const el=document.getElementById('rem-'+sz); el.textContent=Math.max(0,(parseInt(el.textContent)||0)+d); }
 function setRemEstMotivo(m,btn){ remEstMotivo=m; document.querySelectorAll('#remEstMotivos .pb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); }
 function confirmarRemoverEstoque(){
-  const p=remEstProduto; if(!p) return;
-  const atual=parseSizes(p);
-  let totalRem=0;
+  if(!remEstProduto) return;
+  // sempre busca o objeto vivo do array para garantir a referência correta
+  const p = findProd(remEstProduto.id);
+  if(!p){ showToast('produto não encontrado'); return; }
+  const nomeProd = p.nome + (p.cor ? ' · ' + p.cor : '');
+
   if(remEstModo==='tudo'){
-    // zera todos os tamanhos independente da quantidade
-    SIZES.forEach(sz=>{ totalRem+=(parseInt(atual[sz])||0); atual[sz]=0; });
-    // mesmo que totalRem seja 0, permite remover (produto sem estoque cadastrado)
-    p.sizes=JSON.stringify(atual); p.estoque=0;
+    // remove o produto inteiro do array de produtos
+    if(!confirm(`Remover "${nomeProd}" completamente do estoque?`)) return;
+    const totalAntes = totalProdEst(p);
+    produtos = produtos.filter(x => String(x.id) !== String(p.id));
+    sbPushDelete('produtos', p.id);
     saveLocal(); fecharModal('remEstOv'); renderProdutos(); renderEstoque(); renderDash();
-    sbPush('produtos',p);
-    addLog('edit','produto zerado do estoque',`${p.nome+(p.cor?' · '+p.cor:'')} · motivo: ${remEstMotivo}`);
-    showToast('produto removido do estoque');
+    addLog('del', 'produto removido do estoque', `${nomeProd} · motivo: ${remEstMotivo}`);
+    showToast(`"${p.nome}" removido do estoque`);
   } else {
+    // remove quantidades por tamanho
+    const atual = parseSizes(p);
+    let totalRem = 0;
     SIZES.forEach(sz=>{
-      const rem=parseInt(document.getElementById('rem-'+sz).textContent)||0;
-      totalRem+=Math.min(rem,parseInt(atual[sz])||0);
-      atual[sz]=Math.max(0,(parseInt(atual[sz])||0)-rem);
+      const rem = parseInt(document.getElementById('rem-'+sz)?.textContent)||0;
+      const disponivel = parseInt(atual[sz])||0;
+      const efetivo = Math.min(rem, disponivel);
+      totalRem += efetivo;
+      atual[sz] = disponivel - efetivo;
     });
     if(!totalRem){ showToast('informe a quantidade a remover'); return; }
-    p.sizes=JSON.stringify(atual); p.estoque=SIZES.reduce((s,sz)=>s+(parseInt(atual[sz])||0),0);
+    // atualiza direto no objeto do array
+    p.sizes = JSON.stringify(atual);
+    p.estoque = SIZES.reduce((s,sz)=>s+(parseInt(atual[sz])||0), 0);
     saveLocal(); fecharModal('remEstOv'); renderProdutos(); renderEstoque(); renderDash();
-    sbPush('produtos',p);
-    addLog('edit','estoque removido',`−${totalRem} un. · ${p.nome+(p.cor?' · '+p.cor:'')} · motivo: ${remEstMotivo}`);
+    sbPush('produtos', p);
+    addLog('edit','estoque removido',`−${totalRem} un. · ${nomeProd} · motivo: ${remEstMotivo}`);
     showToast(`−${totalRem} un. removidas`);
   }
 }
