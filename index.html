@@ -1759,10 +1759,12 @@ function renderSelCat(){
 function selecionarCatalogo(id){
   prodCatalogoId=id;
   const c=findCat(id);
-  document.getElementById('prodCatalogoName').textContent=c?c.nome:'';
+  // Preenche campos do novo formulário se disponíveis
+  const precoEl=document.getElementById('pPreco')||document.getElementById('prodPreco');
+  const custoEl=document.getElementById('pCusto')||document.getElementById('prodCusto');
   if(c&&!eid){
-    if(!document.getElementById('prodPreco').value) document.getElementById('prodPreco').value=c.preco_padrao||'';
-    if(!document.getElementById('prodCusto').value) document.getElementById('prodCusto').value=c.custo_padrao||'';
+    if(precoEl&&!precoEl.value) precoEl.value=c.preco_padrao||'';
+    if(custoEl&&!custoEl.value) custoEl.value=c.custo_padrao||'';
   }
   fecharModal('selCatOv');
 }
