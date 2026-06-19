@@ -587,20 +587,27 @@ body{display:flex;align-items:center;justify-content:center;}
     <div id="estoqueGrid" class="gap"></div>
     <div id="estoqueEmpty" style="display:none" class="empty"><div class="ei">👗</div><div class="et">nenhum produto em estoque</div><div class="es">toque em <b>+ novo</b> para adicionar</div></div>
   </div></div>
-  <!-- CATALOGO -->
+  <!-- CATALOGO → agora só Opções + Fotos -->
   <div id="catalogo" class="sec"><div class="gap">
     <div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;" id="catSubnav">
-      <button type="button" class="pill on" onclick="setCatSub('produtos',this)">Produtos</button>
+      <button type="button" class="pill on" onclick="setCatSub('opcoes',this)">Opções</button>
       <button type="button" class="pill" onclick="setCatSub('fotos',this)">Fotos</button>
-      <button type="button" class="pill" onclick="setCatSub('opcoes',this)">Opções</button>
     </div>
-    <div id="cat-sub-produtos">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><div class="slbl" style="margin:0">produtos</div><button type="button" class="edit-chip" id="editChip" onclick="toggleEdit()">✎ editar</button></div>
-      <div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="searchInpCat" placeholder="buscar..." oninput="renderCatalogoProdutos()"/></div>
-      <div class="pills" id="catFilterProd" style="margin-top:8px"></div>
-      <div id="catalogoProdutos" style="margin-top:8px"></div>
-      <button type="button" class="addbtn" style="margin-top:8px" onclick="abrirModalNovoProduto(null)">+ novo produto</button>
+
+    <!-- OPÇÕES -->
+    <div id="cat-sub-opcoes">
+      <div class="slbl">categorias de produto</div>
+      <div class="tlist" id="tagListCategorias"></div>
+      <div class="tarow"><input id="newCategoria" placeholder="Ex: Top, Legging, Conjunto..."/><button type="button" onclick="addOpcao('categorias')">+ add</button></div>
+      <div class="slbl" style="margin-top:16px">tecidos / malhas</div>
+      <div class="tlist" id="tagListTecidos"></div>
+      <div class="tarow"><input id="newTecido" placeholder="Ex: Suplex, Dry Fit, Lycra..."/><button type="button" onclick="addOpcao('tecidos')">+ add</button></div>
+      <div class="slbl" style="margin-top:16px">cores disponíveis</div>
+      <div class="tlist" id="tagListCores"></div>
+      <div class="tarow"><input id="newCor" placeholder="Ex: Preto, Rosa Claro, Azul..."/><button type="button" onclick="addOpcao('cores')">+ add</button></div>
     </div>
+
+    <!-- FOTOS -->
     <div id="cat-sub-fotos" style="display:none">
       <div class="ftabs">
         <button type="button" class="ftab on" onclick="setFotosFiltro('todas',this)">Todas</button>
@@ -612,11 +619,6 @@ body{display:flex;align-items:center;justify-content:center;}
       <div class="ftgrid" id="fotosGrid"></div>
       <button type="button" class="addbtn" style="margin-top:8px" onclick="document.getElementById('fotoUploadGaleria').click()">📷 enviar foto</button>
       <input type="file" id="fotoUploadGaleria" accept="image/*" style="display:none" onchange="processarFotoGaleria(this)"/>
-    </div>
-    <div id="cat-sub-opcoes" style="display:none">
-      <div class="tlbl">categorias</div><div class="tlist" id="tagListCategorias"></div><div class="tarow"><input id="newCategoria" placeholder="Ex: Top, Legging..."/><button type="button" onclick="addOpcao('categorias')">+ add</button></div>
-      <div class="tlbl">tecidos</div><div class="tlist" id="tagListTecidos"></div><div class="tarow"><input id="newTecido" placeholder="Ex: Suplex, Dry Fit..."/><button type="button" onclick="addOpcao('tecidos')">+ add</button></div>
-      <div class="tlbl">cores</div><div class="tlist" id="tagListCores"></div><div class="tarow"><input id="newCor" placeholder="Ex: Preto, Rosa..."/><button type="button" onclick="addOpcao('cores')">+ add</button></div>
     </div>
   </div></div>
   <!-- VENDAS -->
@@ -705,74 +707,56 @@ body{display:flex;align-items:center;justify-content:center;}
     <span>Marketing</span></button>
 </nav>
 
-<!-- PRODUTO BASE -->
+<!-- PRODUTO (formulário único e completo) -->
 <div class="mov" id="prodModalOv"><div class="mbox">
   <button type="button" class="modal-x-close" onclick="fecharModalComConfirm('prodModalOv')" title="Fechar">×</button>
   <div class="mtitle" id="prodModalTitle">novo produto</div>
-  <span class="mlbl">nome do produto</span><input class="minput" id="catNome" placeholder="Ex: Top Cropped Mango"/>
-  <span class="mlbl">categoria</span><div class="sfield ph" id="catCategoriaSel" onclick="abrirSelOpcao('categorias','catCategoria','catCategoriaSel')">selecionar categoria</div><input type="hidden" id="catCategoria"/>
-  <span class="mlbl">tecido</span><div class="sfield ph" id="catTecidoSel" onclick="abrirSelOpcao('tecidos','catTecido','catTecidoSel')">selecionar tecido</div><input type="hidden" id="catTecido"/>
-  <span class="mlbl">descrição (vitrine)</span><input class="minput" id="catDescricao" placeholder="Peça confortável para treinos..."/>
-  <div class="m2col"><div><span class="mlbl" style="margin-top:0">custo padrão</span><input class="minput" id="catCusto" type="number" step="0.01" placeholder="0,00"/></div><div><span class="mlbl" style="margin-top:0">preço padrão</span><input class="minput" id="catPreco" type="number" step="0.01" placeholder="0,00"/></div></div>
-  <span class="mlbl" style="margin-top:16px">foto de capa <small style="font-size:9px;text-transform:none;letter-spacing:0;font-weight:400;opacity:.55">· opcional · pode adicionar mais após salvar</small></span>
-  <div id="catFotoPreviewWrap" style="display:none;margin-bottom:8px;position:relative;width:86px;height:86px;border-radius:10px;overflow:hidden;border:.5px solid var(--bg3);">
-    <img id="catFotoPreviewImg" style="width:100%;height:100%;object-fit:cover"/>
-    <button type="button" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(15,15,15,.82);color:#fff;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;" onclick="removerFotoNovoProduto()">×</button>
-  </div>
-  <div class="factions" style="margin-bottom:4px">
-    <button type="button" class="fbtn" onclick="document.getElementById('catFotoFileInput').click()">
-      <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>enviar foto</button>
-    <button type="button" class="fbtn" onclick="toggleCatFotoLink()">
-      <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>via link</button>
-  </div>
-  <input type="file" id="catFotoFileInput" accept="image/*" style="display:none" onchange="processarFotoNovoProduto(this)"/>
-  <div class="flinkrow" id="catFotoLinkRow"><input id="catFotoLink" placeholder="https://..."/><button type="button" onclick="aplicarCatFotoLink()">ok</button></div>
-  <div class="fstatus" id="catFotoStatus"></div>
-  <div class="mbtns"><button type="button" class="mcancel" onclick="fecharModalComConfirm('prodModalOv')">cancelar</button><button type="button" class="msave" onclick="salvarCatalogo()">salvar produto</button></div>
-  <button type="button" class="mdel" id="catDelete" style="display:none" onclick="deletarCatalogo()">🗑 remover produto</button>
-</div></div>
 
-<!-- VARIAÇÃO -->
-<div class="mov" id="varModalOv"><div class="mbox">
-  <button type="button" class="modal-x-close" onclick="fecharModalComConfirm('varModalOv')" title="Fechar">×</button>
-  <div class="mtitle" id="varModalTitle">nova cor</div>
+  <span class="mlbl">nome do produto</span>
+  <input class="minput" id="pNome" placeholder="Ex: Top Cropped Mango"/>
 
-  <span class="mlbl">produto base</span>
-  <div class="pickrow" onclick="abrirSelCatalogo()"><div><div class="pl">selecionar produto</div><div class="pv" id="prodCatalogoName">escolher...</div></div><span class="pa">›</span></div>
+  <span class="mlbl">categoria</span>
+  <div class="sfield ph" id="pCategoriaSel" onclick="abrirSelOpcao('categorias','pCategoria','pCategoriaSel')">selecionar categoria</div>
+  <input type="hidden" id="pCategoria"/>
+
+  <span class="mlbl">tecido / malha</span>
+  <div class="sfield ph" id="pTecidoSel" onclick="abrirSelOpcao('tecidos','pTecido','pTecidoSel')">selecionar tecido</div>
+  <input type="hidden" id="pTecido"/>
 
   <span class="mlbl">cor</span>
-  <div class="sfield ph" id="varCorSel" onclick="abrirSelOpcao('cores','varCor','varCorSel')">selecionar cor</div>
-  <input type="hidden" id="varCor"/>
+  <div class="sfield ph" id="pCorSel" onclick="abrirSelOpcao('cores','pCor','pCorSel')">selecionar cor</div>
+  <input type="hidden" id="pCor"/>
 
   <div class="m2col">
-    <div><span class="mlbl" style="margin-top:0">custo</span><input class="minput" id="varCusto" type="number" step="0.01" placeholder="0,00"/></div>
-    <div><span class="mlbl" style="margin-top:0">preço venda</span><input class="minput" id="varPreco" type="number" step="0.01" placeholder="0,00"/></div>
+    <div><span class="mlbl" style="margin-top:0">custo (R$)</span><input class="minput" id="pCusto" type="number" step="0.01" placeholder="0,00"/></div>
+    <div><span class="mlbl" style="margin-top:0">preço venda (R$)</span><input class="minput" id="pPreco" type="number" step="0.01" placeholder="0,00"/></div>
   </div>
 
-  <div class="var-stock-hint">
-    <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Quantidades por tamanho é gerenciado na aba <b>Estoque</b>
+  <span class="mlbl">estoque por tamanho</span>
+  <div class="szgrid" id="pSizesGrid">
+    <div class="size-col"><div class="size-lbl">P</div><div class="size-ctrl"><button class="size-btn" onclick="chgPQty('P',-1)">−</button><div class="size-num" id="pqty-P">0</div><button class="size-btn" onclick="chgPQty('P',1)">+</button></div></div>
+    <div class="size-col"><div class="size-lbl">M</div><div class="size-ctrl"><button class="size-btn" onclick="chgPQty('M',-1)">−</button><div class="size-num" id="pqty-M">0</div><button class="size-btn" onclick="chgPQty('M',1)">+</button></div></div>
+    <div class="size-col"><div class="size-lbl">G</div><div class="size-ctrl"><button class="size-btn" onclick="chgPQty('G',-1)">−</button><div class="size-num" id="pqty-G">0</div><button class="size-btn" onclick="chgPQty('G',1)">+</button></div></div>
+    <div class="size-col"><div class="size-lbl">GG</div><div class="size-ctrl"><button class="size-btn" onclick="chgPQty('GG',-1)">−</button><div class="size-num" id="pqty-GG">0</div><button class="size-btn" onclick="chgPQty('GG',1)">+</button></div></div>
   </div>
-  <div class="mbtns" style="margin-top:12px">
-    <button type="button" class="mcancel" onclick="fecharModal('varModalOv')">cancelar</button>
-    <button type="button" class="msave" onclick="salvarVariacao()">salvar cor</button>
-  </div>
-  <button type="button" class="mclose" id="varSaveClose" onclick="concluirVariacao()">fechar</button>
-  <button type="button" class="mdel" id="varDelete" style="display:none" onclick="deletarVariacao()">🗑 remover cor</button>
 
-  <div class="var-foto-section" id="varFotoSection">
-    <span class="mlbl" style="margin-top:20px">fotos <small style="text-transform:none;letter-spacing:0;font-size:9px;opacity:.55;font-weight:400">· 1ª = capa · arraste p/ reordenar</small></span>
-    <div class="fgal" id="prodFotosGallery"></div>
-    <input type="file" id="fotoFile" accept="image/*" multiple style="display:none" onchange="processarFotoProd(this)"/>
-    <div class="factions">
-      <button type="button" class="fbtn" onclick="document.getElementById('fotoFile').click()">
-        <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>enviar foto</button>
-      <button type="button" class="fbtn" onclick="toggleFotoLink()">
-        <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>via link</button>
-    </div>
-    <div class="flinkrow" id="fotoLinkRow"><input id="fotoLink" placeholder="https://..."/><button type="button" onclick="aplicarLinkProd()">ok</button></div>
-    <div class="fstatus" id="fotoStatus"></div>
+  <span class="mlbl" style="margin-top:16px">fotos <small style="text-transform:none;letter-spacing:0;font-size:9px;opacity:.55;font-weight:400">· 1ª = capa · arraste p/ reordenar</small></span>
+  <div class="fgal" id="pFotosGallery"></div>
+  <input type="file" id="pFotoFile" accept="image/*" multiple style="display:none" onchange="processarFotoProdNovo(this)"/>
+  <div class="factions">
+    <button type="button" class="fbtn" onclick="document.getElementById('pFotoFile').click()">
+      <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>enviar foto</button>
+    <button type="button" class="fbtn" onclick="togglePFotoLink()">
+      <svg style="width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>via link</button>
   </div>
+  <div class="flinkrow" id="pFotoLinkRow"><input id="pFotoLink" placeholder="https://..."/><button type="button" onclick="aplicarPFotoLink()">ok</button></div>
+  <div class="fstatus" id="pFotoStatus"></div>
+
+  <div class="mbtns" style="margin-top:16px">
+    <button type="button" class="mcancel" onclick="fecharModalComConfirm('prodModalOv')">cancelar</button>
+    <button type="button" class="msave" onclick="salvarProduto()">salvar produto</button>
+  </div>
+  <button type="button" class="mdel" id="pDelete" style="display:none" onclick="deletarProduto()">🗑 remover produto</button>
 </div></div>
 
 <!-- VENDA -->
@@ -1168,7 +1152,6 @@ function setSyncStatus(tipo,msg){
 }
 function renderTudo(){
   renderDash();
-  renderCatalogoProdutos();
   renderEstoque();
   renderVendas();
   renderClientes();
@@ -1332,8 +1315,234 @@ function renderChart(){
   }).join('');
 }
 
-// ── Catálogo (modelos) ─────────────────────────────────
-function renderCatalogo(){ renderCatalogoProdutos(); }
+// ══ PRODUTO — formulário único ════════════════════════════
+let prodEditId = null;          // id do produto sendo editado (null = novo)
+let prodFotosPendentes = [];    // fotos adicionadas antes de salvar (novo produto)
+
+function abrirModalNovoProduto(editId){
+  prodEditId = editId || null;
+  prodFotosPendentes = [];
+  document.getElementById('prodModalTitle').textContent = editId ? 'editar produto' : 'novo produto';
+  document.getElementById('pDelete').style.display = editId ? 'block' : 'none';
+
+  const catSel = document.getElementById('pCategoriaSel');
+  const tecSel = document.getElementById('pTecidoSel');
+  const corSel = document.getElementById('pCorSel');
+
+  if(editId){
+    const p = findProd(editId);
+    if(p){
+      document.getElementById('pNome').value = p.nome || '';
+      document.getElementById('pCategoria').value = p.cat || '';
+      catSel.textContent = p.cat || 'selecionar categoria'; catSel.classList.toggle('ph', !p.cat);
+      document.getElementById('pTecido').value = p.tecido || '';
+      tecSel.textContent = p.tecido || 'selecionar tecido'; tecSel.classList.toggle('ph', !p.tecido);
+      document.getElementById('pCor').value = p.cor || '';
+      corSel.textContent = p.cor || 'selecionar cor'; corSel.classList.toggle('ph', !p.cor);
+      document.getElementById('pCusto').value = p.custo || '';
+      document.getElementById('pPreco').value = p.preco || '';
+      const sizes = parseSizes(p);
+      SIZES.forEach(sz=>{ const el=document.getElementById('pqty-'+sz); if(el) el.textContent=sizes[sz]||0; });
+    }
+  } else {
+    document.getElementById('pNome').value = '';
+    document.getElementById('pCategoria').value = '';
+    catSel.textContent = 'selecionar categoria'; catSel.classList.add('ph');
+    document.getElementById('pTecido').value = '';
+    tecSel.textContent = 'selecionar tecido'; tecSel.classList.add('ph');
+    document.getElementById('pCor').value = '';
+    corSel.textContent = 'selecionar cor'; corSel.classList.add('ph');
+    document.getElementById('pCusto').value = '';
+    document.getElementById('pPreco').value = '';
+    SIZES.forEach(sz=>{ const el=document.getElementById('pqty-'+sz); if(el) el.textContent=0; });
+  }
+  // render foto gallery
+  eid = editId || null;
+  renderPFotosGallery();
+  document.getElementById('pFotoStatus').className = 'fstatus';
+  document.getElementById('pFotoLinkRow').classList.remove('show');
+  abrirModal('prodModalOv');
+}
+
+function chgPQty(sz, d){
+  const el = document.getElementById('pqty-'+sz);
+  el.textContent = Math.max(0, (parseInt(el.textContent)||0) + d);
+}
+
+function salvarProduto(){
+  const nome = document.getElementById('pNome').value.trim();
+  if(!nome){ showToast('informe o nome do produto'); return; }
+  const cat   = document.getElementById('pCategoria').value.trim();
+  const tecido= document.getElementById('pTecido').value.trim();
+  const cor   = document.getElementById('pCor').value.trim();
+  const custo = parseFloat(document.getElementById('pCusto').value)||0;
+  const preco = parseFloat(document.getElementById('pPreco').value)||0;
+  const sizes = {};
+  SIZES.forEach(sz=> sizes[sz] = parseInt(document.getElementById('pqty-'+sz).textContent)||0);
+  const estoque = SIZES.reduce((s,sz)=>s+sizes[sz], 0);
+
+  if(prodEditId){
+    const idx = produtos.findIndex(x=>String(x.id)===String(prodEditId));
+    if(idx >= 0){
+      produtos[idx] = {...produtos[idx], nome, cat, tecido, cor, custo, preco, sizes:JSON.stringify(sizes), estoque};
+      sbPush('produtos', produtos[idx]);
+      addLog('edit','produto editado',`${nome}${cor?' · '+cor:''} · ${fmt(preco)}`);
+      showToast('produto atualizado ✦');
+    }
+  } else {
+    const prod = {
+      id:'p'+(nid++), nome, cat, tecido, cor, custo, preco,
+      sizes:JSON.stringify(sizes), estoque,
+      thumb:Math.floor(Math.random()*5), icon:Math.floor(Math.random()*7), criado_em:hoje()
+    };
+    produtos.push(prod);
+    eid = prod.id;
+    sbPush('produtos', prod);
+    // anexar fotos pendentes
+    prodFotosPendentes.forEach(async (dataUrl, i)=>{
+      let url = dataUrl;
+      if(dataUrl.startsWith('__link__')){ url = dataUrl.slice(8); }
+      else if(cloudName&&cloudPreset){ url = await uploadCloudinary(dataUrl, prod.id)||dataUrl; }
+      const nf={id:'f'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,8),url,produto_id:prod.id,ordem:i,criado_em:hoje()};
+      fotos.unshift(nf); sbPush('fotos',nf); saveLocal(); renderFotos();
+    });
+    addLog('add','produto criado',`${nome}${cor?' · '+cor:''} · ${fmt(preco)}`);
+    showToast('produto criado ✦');
+  }
+  prodFotosPendentes = [];
+  saveLocal(); fecharModal('prodModalOv'); renderEstoque(); renderDash(); renderMktProdSel();
+}
+
+function deletarProduto(){
+  const p = findProd(prodEditId);
+  if(!p || !confirm(`Remover "${p.nome}${p.cor?' · '+p.cor:''}"?`)) return;
+  fotos.filter(f=>String(f.produto_id)===String(prodEditId)).forEach(f=>f.produto_id='LIXEIRA');
+  produtos = produtos.filter(x=>String(x.id)!==String(prodEditId));
+  sbPushDelete('produtos', prodEditId);
+  saveLocal(); fecharModal('prodModalOv'); renderEstoque(); renderDash();
+  addLog('del','produto removido', p.nome+(p.cor?' · '+p.cor:''));
+  showToast('produto removido');
+}
+
+// ── Fotos no modal de produto ──────────────────────────
+function renderPFotosGallery(){
+  const cont = document.getElementById('pFotosGallery');
+  if(!cont) return;
+  let html = '';
+  if(eid){
+    // produto já salvo — mostra fotos reais
+    const lista = fotosDoProduto(eid);
+    html = lista.map((f,i)=>`
+      <div class="gal-foto" draggable="true" ondragstart="dragFotoStart(event,'${f.id}')" ondragover="dragFotoOver(event)" ondragleave="dragFotoLeave(event)" ondragend="dragFotoEnd(event)" ondrop="dragFotoDrop(event,'${f.id}')">
+        <img src="${f.url}" loading="lazy" onerror="this.style.opacity='.3'"/>
+        ${i===0?'<div class="foto-badge-capa">capa</div>':''}
+        <button class="gal-foto-rm" title="remover" onclick="removerFotoProduto('${f.id}')">×</button>
+      </div>`).join('');
+  } else {
+    // novo produto — mostra fotos pendentes (dataUrl)
+    html = prodFotosPendentes.map((url,i)=>{
+      const src = url.startsWith('__link__') ? url.slice(8) : url;
+      return `<div class="gal-foto">
+        <img src="${src}" onerror="this.style.opacity='.3'"/>
+        ${i===0?'<div class="foto-badge-capa">capa</div>':''}
+        <button class="gal-foto-rm" title="remover" onclick="removerFotoPendente(${i})">×</button>
+      </div>`;
+    }).join('');
+  }
+  html += `<div class="gal-add" onclick="document.getElementById('pFotoFile').click()">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span class="gal-add-text">foto</span>
+  </div>`;
+  cont.innerHTML = html;
+}
+function removerFotoPendente(i){
+  prodFotosPendentes.splice(i,1); renderPFotosGallery();
+}
+function togglePFotoLink(){ document.getElementById('pFotoLinkRow').classList.toggle('show'); }
+function aplicarPFotoLink(){
+  const link = document.getElementById('pFotoLink').value.trim();
+  if(!link){ showToast('cole um link válido'); return; }
+  if(eid){
+    // produto já existe — salva direto
+    const ordem = fotosDoProduto(eid).length;
+    const nf={id:'f'+Date.now()+Math.random().toString(36).slice(2,5),url:link,produto_id:eid,ordem,criado_em:hoje()};
+    fotos.unshift(nf); sbPush('fotos',nf); saveLocal();
+    addLog('foto','foto adicionada via link',`produto ${eid}`);
+    showToast('foto adicionada ✦');
+  } else {
+    prodFotosPendentes.push('__link__'+link);
+  }
+  document.getElementById('pFotoLink').value=''; document.getElementById('pFotoLinkRow').classList.remove('show');
+  renderPFotosGallery(); renderEstoque();
+}
+async function processarFotoProdNovo(input){
+  if(!input.files||!input.files.length) return;
+  const st = document.getElementById('pFotoStatus');
+  const files = Array.from(input.files);
+  st.className='fstatus show loading'; st.textContent=`preparando ${files.length} foto${files.length>1?'s':''}...`;
+  let ok=0;
+  for(let i=0;i<files.length;i++){
+    st.textContent=`enviando ${i+1}/${files.length}...`;
+    try{
+      const dataUrl = await comprimirImagem(files[i],1000,0.85);
+      if(eid){
+        // produto já salvo — sobe para Cloudinary e salva
+        const url = cloudName&&cloudPreset ? await uploadCloudinary(dataUrl,eid)||dataUrl : dataUrl;
+        const ordem = fotosDoProduto(eid).length;
+        const nf={id:'f'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,8),url,produto_id:eid,ordem,criado_em:hoje()};
+        fotos.unshift(nf); sbPush('fotos',nf); saveLocal();
+      } else {
+        // novo produto — guarda pendente
+        prodFotosPendentes.push(dataUrl);
+      }
+      ok++;
+    }catch(e){ console.error(e); }
+  }
+  st.className=`fstatus show ${ok?'ok':'err'}`;
+  st.textContent = ok ? `${ok} foto${ok>1?'s':''} pronta${ok>1?'s':''} ✦` : 'erro ao carregar';
+  if(ok) setTimeout(()=>st.classList.remove('show'),2500);
+  renderPFotosGallery(); renderEstoque(); renderFotos();
+  input.value='';
+}
+
+// ── Drag & drop fotos (usa eid global) ─────────────────
+function dragFotoStart(e,fid){ dragFotoId=fid; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
+function dragFotoOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dragFotoLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+function dragFotoEnd(e){ e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.gal-foto').forEach(el=>el.classList.remove('drag-over')); }
+function dragFotoDrop(e,targetId){
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if(!dragFotoId||dragFotoId===targetId||!eid) return;
+  const lista=fotosDoProduto(eid);
+  const io=lista.findIndex(f=>String(f.id)===String(dragFotoId));
+  const it=lista.findIndex(f=>String(f.id)===String(targetId));
+  if(io<0||it<0) return;
+  const [moved]=lista.splice(io,1); lista.splice(it,0,moved);
+  lista.forEach((f,i)=>{ const fo=fotos.find(x=>String(x.id)===String(f.id)); if(fo) fo.ordem=i; });
+  saveLocal(); renderPFotosGallery(); renderEstoque(); showToast('ordem atualizada ✦');
+}
+function removerFotoProduto(fid){
+  if(!confirm('Remover esta foto?')) return;
+  const f=fotos.find(x=>String(x.id)===String(fid));
+  if(f){ f.produto_id='LIXEIRA'; sbPush('fotos',f); saveLocal(); renderPFotosGallery(); renderEstoque(); renderFotos(); showToast('foto removida'); }
+}
+
+// ── Estoque inline ─────────────────────────────────────
+function renderCatalogo(){ /* noop — catalogo agora é só opções */ }
+function renderProdutos(){ renderEstoque(); }
+function renderCatalogoProdutos(){ renderEstoque(); }
+function toggleEdit(){ renderEstoque(); }
+function concluirVariacao(){ fecharModal('varModalOv'); renderEstoque(); renderDash(); }
+function abrirModalVariacao(varId, catId){ abrirModalNovoProduto(varId||null); }
+function salvarVariacao(){ salvarProduto(); }
+function deletarVariacao(){ deletarProduto(); }
+function salvarCatalogo(){ salvarProduto(); }
+function deletarCatalogo(){ deletarProduto(); }
+function abrirModalCatalogo(id){ abrirModalNovoProduto(id); }
+
+// compatibilidade: campos antigos apontam para novos
+function getFieldVal(newId, oldId){ const el=document.getElementById(newId)||document.getElementById(oldId); return el?el.value.trim():''; }
+
 function renderEstoque(){
   const grid=document.getElementById('estoqueGrid');
   const empty=document.getElementById('estoqueEmpty');
@@ -1351,248 +1560,31 @@ function renderEstoque(){
   empty.style.display='none';
   if(!filtered.length){ grid.innerHTML='<div class="empty"><div class="et">nenhum produto encontrado</div></div>'; return; }
   const THUMBS2=['t-nude','t-sage','t-mid','t-warm','t-rose'];
-  const ICONS2=['','','','','','',''];
   grid.innerHTML=filtered.map(p=>{
     const sizes=parseSizes(p); const total=SIZES.reduce((s,sz)=>s+(parseInt(sizes[sz])||0),0);
     let sc='sb-ok',st=total+' un.'; if(total===0){sc='sb-out';st='esgotado';}else if(total<=3){sc='sb-low';}
-    const ti=(parseInt(p.thumb)||0)%THUMBS2.length; const ii=(parseInt(p.icon)||0)%ICONS2.length;
+    const ti=(parseInt(p.thumb)||0)%THUMBS2.length;
     const fotoUrl=getFotoPrincipal(p);
     const thumbHtml=fotoUrl?`<img src="${fotoUrl}" loading="lazy">`:`<div class="pli-ph ${THUMBS2[ti]}"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.4"><path d="M20.38 18.01L13 10.28V8.5a2.5 2.5 0 1 0-3 0v.92L3.62 18c-.54.54-.16 1.5.6 1.5h16.17c.76 0 1.14-.96.6-1.5z"/></svg></div>`;
-    const cat=findCat(p.catalogo_id||'');
     const chips=SIZES.map(sz=>{ const q=parseInt(sizes[sz])||0; return `<span class="chip${q===0?' z':''}">${sz}:${q}</span>`; }).join('');
+    const tecMeta=p.tecido?' · '+p.tecido:'';
     return `<div class="pli" onclick="abrirQsale('${p.id}')">
       <div class="pli-t">${thumbHtml}</div>
       <div class="pli-i">
         <div class="pli-n">${p.nome||''}</div>
-        <div class="pli-m">${p.cor||''}${cat&&cat.tecido?' · '+cat.tecido:''}</div>
+        <div class="pli-m">${p.cor||''}${tecMeta}</div>
         <div class="chips">${chips}</div>
         <div class="pli-p">${fmt(p.preco)}</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px">
         <div class="pli-s ${sc}">${st}</div>
-        <button type="button" class="abtn g" style="width:30px;height:30px;border-radius:50%;background:rgba(92,138,118,.9);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRepos('${p.id}')" title="Repor">+</button>
-        <button type="button" class="abtn r" style="width:30px;height:30px;border-radius:50%;background:rgba(192,57,43,.15);color:var(--err);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRemoverEstoque('${p.id}')" title="Remover estoque">−</button>
+        <button type="button" style="width:28px;height:28px;border-radius:50%;background:var(--bg2);border:.5px solid var(--bg3);color:var(--ink3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirModalNovoProduto('${p.id}')" title="Editar">✎</button>
+        <button type="button" class="abtn g" style="width:28px;height:28px;border-radius:50%;background:rgba(92,138,118,.9);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRepos('${p.id}')" title="Repor">+</button>
+        <button type="button" class="abtn r" style="width:28px;height:28px;border-radius:50%;background:rgba(192,57,43,.15);color:var(--err);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRemoverEstoque('${p.id}')" title="Remover">−</button>
       </div>
     </div>`;
   }).join('');
 }
-function abrirModalCatalogo(id){
-  catEditId=id;
-  document.getElementById('prodModalTitle').textContent=id?'editar modelo':'novo modelo';
-  document.getElementById('catDelete').style.display=id?'block':'none';
-  const catSel=document.getElementById('catCategoriaSel');
-  const tecSel=document.getElementById('catTecidoSel');
-  if(id){
-    const c=findCat(id);
-    if(c){
-      document.getElementById('catNome').value=c.nome||'';
-      document.getElementById('catCategoria').value=c.categoria||'';
-      if(c.categoria){ catSel.textContent=c.categoria; catSel.classList.remove('placeholder'); }
-      else{ catSel.textContent='selecionar categoria'; catSel.classList.add('placeholder'); }
-      document.getElementById('catTecido').value=c.tecido||'';
-      if(c.tecido){ tecSel.textContent=c.tecido; tecSel.classList.remove('placeholder'); }
-      else{ tecSel.textContent='selecionar tecido'; tecSel.classList.add('placeholder'); }
-      document.getElementById('catDescricao').value=c.descricao||'';
-      document.getElementById('catCusto').value=c.custo_padrao||'';
-      document.getElementById('catPreco').value=c.preco_padrao||'';
-    }
-  }else{
-    ['catNome','catCategoria','catTecido','catDescricao','catCusto','catPreco'].forEach(i=>{ const el=document.getElementById(i); if(el) el.value=''; });
-    catSel.textContent='selecionar categoria'; catSel.classList.add('placeholder');
-    tecSel.textContent='selecionar tecido'; tecSel.classList.add('placeholder');
-    catFotoDataUrl=null;
-    const pw=document.getElementById('catFotoPreviewWrap'); if(pw) pw.style.display='none';
-    const pi=document.getElementById('catFotoPreviewImg'); if(pi) pi.src='';
-    const fs=document.getElementById('catFotoStatus'); if(fs) fs.className='fstatus';
-    const fl=document.getElementById('catFotoLinkRow'); if(fl) fl.classList.remove('show');
-  }
-  abrirModal('prodModalOv');
-}
-function salvarCatalogo(){
-  const nome=document.getElementById('catNome').value.trim();
-  if(!nome){ showToast('informe o nome do modelo'); return; }
-  const item={
-    id: catEditId||('m'+(nid++)),
-    nome,
-    categoria: document.getElementById('catCategoria').value.trim()||'geral',
-    tecido: document.getElementById('catTecido').value.trim(),
-    descricao: document.getElementById('catDescricao').value.trim(),
-    custo_padrao: parseFloat(document.getElementById('catCusto').value)||0,
-    preco_padrao: parseFloat(document.getElementById('catPreco').value)||0,
-    criado_em: catEditId?(findCat(catEditId)||{}).criado_em||hoje():hoje()
-  };
-  if(catEditId){ const idx=catalogo.findIndex(x=>String(x.id)===String(catEditId)); if(idx>=0) catalogo[idx]=item; }
-  else catalogo.push(item);
-  saveLocal(); fecharModal('prodModalOv'); renderCatalogo(); renderMktProdSel();
-  sbPush('catalogo',item);
-  const _scAcao = catEditId ? 'produto editado' : 'produto criado';
-  addLog(catEditId?'edit':'add', _scAcao, `${item.nome} · ${item.categoria} · ${fmt(item.preco_padrao)}`);
-  showToast(catEditId?'produto atualizado ✦':'produto criado ✦');
-  if(!catEditId && catFotoDataUrl){ anexarFotoAoProduto(item.id, catFotoDataUrl); catFotoDataUrl=null; }
-}
-function deletarCatalogo(){
-  const c=findCat(catEditId);
-  if(!c||!confirm(`Remover modelo "${c.nome}"?`)) return;
-  catalogo=catalogo.filter(x=>String(x.id)!==String(catEditId));
-  sbPushDelete('catalogo',catEditId);
-  saveLocal();
-  fecharModal('prodModalOv');
-  renderCatalogo();
-  addLog('del', 'produto removido', c.nome);
-  showToast('produto removido');
-}
-
-// ── Produtos (variações) ───────────────────────────────
-function toggleEdit(){
-  editMode=!editMode;
-  const b=document.getElementById('editChip');
-  b.textContent=editMode?'✓ concluir':'✎ editar';
-  b.classList.toggle('on',editMode);
-  renderCatalogoProdutos();
-}
-// catFiltroEstoque já declarado globalmente
-function getCategorias(){
-  const cats=new Set(['todas']);
-  produtos.forEach(p=>{ if(p.cat) cats.add(String(p.cat).toLowerCase()); });
-  catalogo.forEach(c=>{ if(c.categoria) cats.add(String(c.categoria).toLowerCase()); });
-  return Array.from(cats);
-}
-function setCatFiltro(c){ catFiltro=c; renderProdutos(); }
-function setCatFiltroEstoque(c){ catFiltroEstoque=c; renderEstoque(); }
-
-function renderProdutos(){ renderCatalogoProdutos(); }
-function setCatSub(sub,btn){
-  document.querySelectorAll('#catSubnav .pill').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  ['produtos','fotos','opcoes'].forEach(s=>{
-    const el=document.getElementById('cat-sub-'+s); if(el) el.style.display=s===sub?'block':'none';
-  });
-  if(sub==='fotos') renderFotos();
-}
-function getSizes(){
-  const s={};
-  SIZES.forEach(sz=>s[sz]=parseInt(document.getElementById('qty-'+sz).textContent)||0);
-  return s;
-}
-function chgQty(sz,d){
-  const el=document.getElementById('qty-'+sz);
-  el.textContent=Math.max(0,(parseInt(el.textContent)||0)+d);
-}
-
-// ── Fotos produto ───────────────────────────────────────
-function fotosDoProduto(id){
-  return fotos.filter(f=>String(f.produto_id)===String(id)&&f.produto_id!=='LIXEIRA')
-    .sort((a,b)=>(parseInt(a.ordem)||0)-(parseInt(b.ordem)||0));
-}
-function renderProdFotosGallery(){
-  const cont=document.getElementById('prodFotosGallery');
-  if(!cont) return;
-  if(!eid){
-    cont.innerHTML=`<div class="gal-add" onclick="document.getElementById('fotoFile').click()">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      <span class="gal-add-text">foto</span>
-    </div><div style="font-size:10px;color:var(--ink4);padding:6px 2px;flex-basis:100%">salve a variação para ativar fotos</div>`;
-    return;
-  }
-  const lista=fotosDoProduto(eid);
-  let html='';
-  if(lista.length===0){
-    html='<div style="font-size:11px;color:var(--ink4);padding:4px 0 8px">nenhuma foto ainda</div>';
-  } else {
-    html=lista.map((f,i)=>`
-      <div class="gal-foto" draggable="true" ondragstart="dragFotoStart(event,'${f.id}')" ondragover="dragFotoOver(event)" ondragleave="dragFotoLeave(event)" ondragend="dragFotoEnd(event)" ondrop="dragFotoDrop(event,'${f.id}')">
-        <img src="${f.url}" loading="lazy" onerror="this.style.opacity='.3'"/>
-        ${i===0?'<div class="foto-badge">capa</div>':''}
-        <button class="gal-foto-rm" title="remover" onclick="removerFotoProduto('${f.id}')">×</button>
-      </div>`).join('');
-  }
-  html+=`<div class="gal-add" onclick="document.getElementById('fotoFile').click()">
-    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    <span class="gal-add-text">foto</span>
-  </div>`;
-  cont.innerHTML=html;
-}
-function toggleFotoLink(){
-  document.getElementById('fotoLinkRow').classList.toggle('show');
-}
-function aplicarLinkProd(){
-  const link=document.getElementById('fotoLink').value.trim();
-  if(!link||!eid){ showToast(!link?'cole um link primeiro':'salve a variação antes'); return; }
-  const ordem=fotosDoProduto(eid).length;
-  const nf={id:'f'+Date.now()+Math.random().toString(36).slice(2,5),url:link,produto_id:eid,ordem,criado_em:hoje()};
-  fotos.unshift(nf);
-  sbPush('fotos',nf);
-  saveLocal(); document.getElementById('fotoLink').value=''; document.getElementById('fotoLinkRow').classList.remove('show');
-  renderProdFotosGallery(); renderProdutos(); renderEstoque();
-  addLog('foto','foto adicionada via link', eid?`produto id ${eid}`:'galeria');
-  showToast('foto adicionada ✦');
-}
-async function processarFotoProd(input){
-  if(!input.files||!input.files.length) return;
-  if(!eid){ showToast('salve a variação primeiro'); input.value=''; return; }
-  const files=Array.from(input.files);
-  setFotoStatus('loading','preparando '+files.length+' foto'+(files.length>1?'s':'')+'...');
-  let sucesso=0;
-  for(let i=0;i<files.length;i++){
-    setFotoStatus('loading',`enviando ${i+1}/${files.length}...`);
-    try{
-      const dataUrl=await comprimirImagem(files[i],1000,0.85);
-      const url=cloudName&&cloudPreset?await uploadCloudinary(dataUrl,eid):dataUrl;
-      if(url){
-        const ordem=fotosDoProduto(eid).length;
-        const nf={id:'f'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,8),url,produto_id:eid,ordem,criado_em:hoje()};
-        fotos.unshift(nf);
-        sbPush('fotos',nf);
-        saveLocal(); sucesso++;
-      }
-    }catch(e){ console.error(e); }
-  }
-  setFotoStatus(sucesso?'ok':'err',sucesso?`${sucesso} foto${sucesso>1?'s':''} enviada${sucesso>1?'s':''} ✦`:'falha no envio');
-  renderProdFotosGallery(); renderProdutos(); renderEstoque(); renderFotos();
-  input.value='';
-}
-async function processarFotoGaleria(input){
-  if(!input.files||!input.files.length) return;
-  const files=Array.from(input.files);
-  showToast('enviando fotos...');
-  for(const f of files){
-    try{
-      const dataUrl=await comprimirImagem(f,1000,0.85);
-      const url=cloudName&&cloudPreset?await uploadCloudinary(dataUrl,'galeria'):dataUrl;
-      if(url) fotos.unshift({id:'fg'+Date.now()+Math.random().toString(36).slice(2,6),url,produto_id:'',ordem:0,criado_em:hoje()});
-    }catch(e){}
-  }
-  saveLocal(); renderFotos(); input.value='';
-  showToast('fotos adicionadas ✦');
-}
-function setFotoStatus(tipo,msg){
-  const el=document.getElementById('fotoStatus');
-  el.className='foto-status show '+tipo; el.textContent=msg;
-  if(tipo==='ok') setTimeout(()=>el.classList.remove('show'),2500);
-}
-// Drag & drop fotos
-function dragFotoStart(e,fid){ dragFotoId=fid; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
-function dragFotoOver(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
-function dragFotoLeave(e){ e.currentTarget.classList.remove('drag-over'); }
-function dragFotoEnd(e){ e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.gal-foto').forEach(el=>el.classList.remove('drag-over')); }
-function dragFotoDrop(e,targetId){
-  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-  if(!dragFotoId||dragFotoId===targetId) return;
-  const lista=fotosDoProduto(eid);
-  const io=lista.findIndex(f=>String(f.id)===String(dragFotoId));
-  const it=lista.findIndex(f=>String(f.id)===String(targetId));
-  if(io<0||it<0) return;
-  const [moved]=lista.splice(io,1); lista.splice(it,0,moved);
-  lista.forEach((f,i)=>{ const fo=fotos.find(x=>String(x.id)===String(f.id)); if(fo) fo.ordem=i; });
-  saveLocal(); renderProdFotosGallery(); renderProdutos(); renderEstoque();
-  showToast('ordem atualizada ✦');
-}
-function removerFotoProduto(fid){
-  if(!confirm('Remover esta foto?')) return;
-  const f=fotos.find(x=>String(x.id)===String(fid));
-  if(f){ f.produto_id='LIXEIRA'; sbPush('fotos',f); saveLocal(); renderProdFotosGallery(); renderProdutos(); renderEstoque(); renderFotos(); showToast('foto removida'); }
-}
-
 // ── Galeria de fotos (aba) ──────────────────────────────
 function setFotosFiltro(f,btn){
   fotosFiltro=f;
@@ -2385,7 +2377,7 @@ function limparTodosDados(){
 }
 
 // ── Fechar modal ao clicar fora ─────────────────────────
-const MODAIS_COM_FORM=['prodModalOv','varModalOv','cliOv','zapOv'];
+const MODAIS_COM_FORM=['prodModalOv','cliOv','zapOv'];
 document.querySelectorAll('.mov,.modal-ov').forEach(el=>{
   el.addEventListener('click',function(e){
     if(e.target===this){
@@ -2396,167 +2388,6 @@ document.querySelectorAll('.mov,.modal-ov').forEach(el=>{
 });
 document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 window.addEventListener('load',()=>{ if(temSessao()){ document.getElementById('loginScreen').classList.add('hidden'); init(); } });
-
-// ── Novo Catálogo — aliases e funções ────────────────────
-function concluirVariacao(){
-  const el = document.getElementById('varModalOv');
-  if(el){ el.classList.remove('show'); el.style.display=''; }
-  renderCatalogoProdutos(); renderEstoque(); renderDash();
-}
-function abrirModalVariacao(varId, catId){
-  // Modal de variação (cor + estoque + fotos)
-  varEditId = varId || null;
-  eid = varId || null;
-  prodCatalogoId = catId || null;
-  document.getElementById('varModalTitle').textContent = varId ? 'editar cor' : 'nova cor';
-  document.getElementById('varDelete').style.display = varId ? 'block' : 'none';
-  document.getElementById('varSaveClose').style.display = varId ? 'block' : 'none';
-  document.getElementById('fotoStatus').className = 'fstatus';
-  document.getElementById('fotoLinkRow').classList.remove('show');
-  const corSel = document.getElementById('varCorSel');
-  if(varId){
-    const p = findProd(varId);
-    if(p){
-      prodCatalogoId = p.catalogo_id || null;
-      const cat = findCat(prodCatalogoId || '');
-      document.getElementById('prodCatalogoName').textContent = cat ? cat.nome : 'sem produto base';
-      document.getElementById('varCor').value = p.cor || '';
-      if(p.cor){ corSel.textContent = p.cor; corSel.classList.remove('ph'); }
-      else { corSel.textContent = 'selecionar cor'; corSel.classList.add('ph'); }
-      document.getElementById('varPreco').value = p.preco || '';
-      document.getElementById('varCusto').value = p.custo || '';
-      const sizes = parseSizes(p);
-      // sizes managed in Estoque tab
-    }
-  } else {
-    const cat = findCat(catId || '');
-    document.getElementById('prodCatalogoName').textContent = cat ? cat.nome : 'escolher...';
-    document.getElementById('varCor').value = '';
-    corSel.textContent = 'selecionar cor'; corSel.classList.add('ph');
-    document.getElementById('varPreco').value = cat ? cat.preco_padrao || '' : '';
-    document.getElementById('varCusto').value = cat ? cat.custo_padrao || '' : '';
-    // sizes start at zero — managed in Estoque tab
-  }
-  renderProdFotosGallery();
-  abrirModal('varModalOv');
-}
-function salvarVariacao(){
-  if(!prodCatalogoId){ showToast('selecione um produto base'); return; }
-  const cat = findCat(prodCatalogoId);
-  if(!cat){ showToast('produto base inválido'); return; }
-  const cor = (document.getElementById('varCor').value || '').trim();
-  const preco = parseFloat(document.getElementById('varPreco').value) || cat.preco_padrao || 0;
-  const custo = parseFloat(document.getElementById('varCusto').value) || cat.custo_padrao || 0;
-  if(varEditId){
-    const idx = produtos.findIndex(x => String(x.id) === String(varEditId));
-    if(idx >= 0){
-      const existingSizes = produtos[idx].sizes;
-      const existingEst = totalProdEst(produtos[idx]);
-      produtos[idx] = {...produtos[idx], catalogo_id:prodCatalogoId, nome:cat.nome, cat:cat.categoria, cor, preco, custo, estoque:existingEst, sizes:existingSizes};
-      sbPush('produtos', produtos[idx]);
-    }
-  } else {
-    const emptySizes = JSON.stringify({P:0,M:0,G:0,GG:0});
-    const prod = {id:'p'+(nid++), catalogo_id:prodCatalogoId, nome:cat.nome, cat:cat.categoria, cor, preco, custo, estoque:0, sizes:emptySizes, thumb:Math.floor(Math.random()*5), icon:Math.floor(Math.random()*7), criado_em:hoje()};
-    produtos.push(prod);
-    eid = prod.id; varEditId = prod.id;
-    document.getElementById('varModalTitle').textContent = 'editar cor';
-    document.getElementById('varDelete').style.display = 'block';
-    sbPush('produtos', prod);
-    renderProdFotosGallery();
-  }
-  saveLocal(); renderCatalogoProdutos(); renderEstoque(); renderDash();
-  // Auto-close and log
-  const _svP = findProd(varEditId);
-  const _svAcao = (varEditId && varEditId !== eid) ? 'cor editada' : 'cor criada';
-  addLog((varEditId && varEditId !== eid) ? 'edit' : 'add', _svAcao,
-    `${_svP?_svP.nome:''}${_svP&&_svP.cor?' · '+_svP.cor:''} · ${fmt(parseFloat(document.getElementById('varPreco').value)||0)}`);
-  concluirVariacao();
-}
-function deletarVariacao(){
-  const p = findProd(varEditId);
-  if(!p || !confirm('Remover esta cor?')) return;
-  fotos.filter(f => String(f.produto_id) === String(varEditId)).forEach(f => f.produto_id = 'LIXEIRA');
-  produtos = produtos.filter(x => String(x.id) !== String(varEditId));
-  sbPushDelete('produtos', varEditId);
-  saveLocal(); fecharModal('varModalOv'); renderCatalogoProdutos(); renderEstoque(); renderDash();
-  addLog('del', 'cor removida', p.nome + (p.cor?' · '+p.cor:''));
-  showToast('cor removida');
-}
-function renderCatalogoProdutos(){
-  const cats = new Set(['todas']);
-  catalogo.forEach(c => { if(c.categoria) cats.add(String(c.categoria).toLowerCase()); });
-  const fp = document.getElementById('catFilterProd');
-  if(fp) fp.innerHTML = Array.from(cats).map(c => `<button type="button" class="pill${catFiltroProd===c?' on':''}" onclick="catFiltroProd='${c}';renderCatalogoProdutos()">${c}</button>`).join('');
-  const search = (document.getElementById('searchInpCat')?.value || '').toLowerCase();
-  let lst = catalogo.filter(c => {
-    if(catFiltroProd !== 'todas' && String(c.categoria||'').toLowerCase() !== catFiltroProd) return false;
-    if(search && !(c.nome||'').toLowerCase().includes(search)) return false;
-    return true;
-  });
-  const el = document.getElementById('catalogoProdutos'); if(!el) return;
-  if(!lst.length){ el.innerHTML = `<div class="empty"><div class="ei">👕</div><div class="et">${catalogo.length?'nenhum encontrado':'nenhum produto ainda'}</div><div class="es">toque em "+ novo produto"</div></div>`; return; }
-  el.innerHTML = lst.map(cat => {
-    const vars = produtos.filter(p => String(p.catalogo_id||'') === String(cat.id));
-    const COR_MAP = {preto:'#1a1a1a',branco:'#f5f5f5',rosa:'#f4a0b5',coral:'#e8735a',azul:'#5b8dd9',verde:'#5cb85c',roxo:'#9b59b6',bege:'#c9a96e',laranja:'#e8832a',vermelho:'#d9534f',cinza:'#888',nude:'#c9a882',vinho:'#6b2d2d',amarelo:'#f0c040'};
-    const corDot = cor => { const k = Object.keys(COR_MAP).find(k => (cor||'').toLowerCase().includes(k)); return k ? COR_MAP[k] : '#ccc'; };
-    const varsHtml = vars.map(p => {
-      const dot = corDot(p.cor||'');
-      return `<div class="cp-var" onclick="event.stopPropagation();abrirModalVariacao('${p.id}')">
-        <div class="cp-vdot" style="background:${dot}"></div>
-        <div class="cp-vi">${p.cor||'sem cor'}</div>
-      </div>`;
-    }).join('');
-    const nVars = vars.length;
-    return `<div class="cpcard" onclick="abrirModalNovoProduto('${cat.id}')">
-      <div class="cp-head-bar"></div>
-      <div class="cp-inner">
-        <div class="cp-h">
-          <div class="cp-hl"><div class="cp-n">${cat.nome||''}</div><div class="cp-c">${cat.categoria||''}</div></div>
-          <div class="cp-hr"><div class="cp-price">${fmt(cat.preco_padrao)}</div><div class="cp-stock">${nVars} cor${nVars!==1?'es':''}</div></div>
-        </div>
-        <div class="cp-divider"></div>
-        <div class="cp-meta"><span>Tecido: <b>${cat.tecido||'—'}</b></span><span>Custo: <b>${fmt(cat.custo_padrao)}</b></span></div>
-        <div class="cp-vars">${varsHtml}<button type="button" class="cp-addv" onclick="event.stopPropagation();abrirModalVariacao(null,'${cat.id}')">+ cor</button></div>
-      </div>
-    </div>`;
-  }).join('');
-}
-function abrirModalNovoProduto(editId){
-  catEditId = editId || null;
-  document.getElementById('prodModalTitle').textContent = editId ? 'editar produto' : 'novo produto';
-  document.getElementById('catDelete').style.display = editId ? 'block' : 'none';
-  const catSel = document.getElementById('catCategoriaSel');
-  const tecSel = document.getElementById('catTecidoSel');
-  if(editId){
-    const c = findCat(editId);
-    if(c){
-      document.getElementById('catNome').value = c.nome || '';
-      document.getElementById('catCategoria').value = c.categoria || '';
-      if(c.categoria){ catSel.textContent = c.categoria; catSel.classList.remove('ph'); }
-      else { catSel.textContent = 'selecionar categoria'; catSel.classList.add('ph'); }
-      document.getElementById('catTecido').value = c.tecido || '';
-      if(c.tecido){ tecSel.textContent = c.tecido; tecSel.classList.remove('ph'); }
-      else { tecSel.textContent = 'selecionar tecido'; tecSel.classList.add('ph'); }
-      document.getElementById('catDescricao').value = c.descricao || '';
-      document.getElementById('catCusto').value = c.custo_padrao || '';
-      document.getElementById('catPreco').value = c.preco_padrao || '';
-    }
-  } else {
-    ['catNome','catCategoria','catTecido','catDescricao','catCusto','catPreco'].forEach(i => { const el = document.getElementById(i); if(el) el.value = ''; });
-    catSel.textContent = 'selecionar categoria'; catSel.classList.add('ph');
-    tecSel.textContent = 'selecionar tecido'; tecSel.classList.add('ph');
-    catFotoDataUrl=null;
-    const pw=document.getElementById('catFotoPreviewWrap'); if(pw) pw.style.display='none';
-    const pi=document.getElementById('catFotoPreviewImg'); if(pi) pi.src='';
-    const fs=document.getElementById('catFotoStatus'); if(fs) fs.className='fstatus';
-    const fl=document.getElementById('catFotoLinkRow'); if(fl) fl.classList.remove('show');
-  }
-  abrirModal('prodModalOv');
-}
-
-
-
 
 // ── Ajuste inline de estoque ─────────────────────────────
 function ajustarEst(prodId, sz, delta){
@@ -2586,55 +2417,6 @@ function ajustarEst(prodId, sz, delta){
 }
 ajustarEst._t = null;
 
-// ── Foto no modal de novo produto ─────────────────────
-let catFotoDataUrl=null;
-function toggleCatFotoLink(){
-  document.getElementById('catFotoLinkRow').classList.toggle('show');
-}
-function aplicarCatFotoLink(){
-  const link=document.getElementById('catFotoLink').value.trim();
-  if(!link){ showToast('cole um link válido'); return; }
-  catFotoDataUrl='__link__'+link;
-  document.getElementById('catFotoPreviewImg').src=link;
-  document.getElementById('catFotoPreviewWrap').style.display='block';
-  document.getElementById('catFotoLinkRow').classList.remove('show');
-  document.getElementById('catFotoLink').value='';
-}
-async function processarFotoNovoProduto(input){
-  if(!input.files||!input.files.length) return;
-  const st=document.getElementById('catFotoStatus');
-  st.className='fstatus show loading'; st.textContent='preparando foto...';
-  try{
-    const dataUrl=await comprimirImagem(input.files[0],1000,0.85);
-    catFotoDataUrl=dataUrl;
-    document.getElementById('catFotoPreviewImg').src=dataUrl;
-    document.getElementById('catFotoPreviewWrap').style.display='block';
-    st.className='fstatus show ok'; st.textContent='foto pronta ✦';
-    setTimeout(()=>st.classList.remove('show'),2000);
-  }catch(e){ st.className='fstatus show err'; st.textContent='erro ao carregar foto'; }
-  input.value='';
-}
-function removerFotoNovoProduto(){
-  catFotoDataUrl=null;
-  document.getElementById('catFotoPreviewWrap').style.display='none';
-  document.getElementById('catFotoPreviewImg').src='';
-  document.getElementById('catFotoStatus').className='fstatus';
-}
-async function anexarFotoAoProduto(catId, dataUrl){
-  if(!dataUrl) return;
-  let url=dataUrl;
-  if(dataUrl.startsWith('__link__')){
-    url=dataUrl.slice(8);
-  } else if(cloudName&&cloudPreset){
-    url=await uploadCloudinary(dataUrl,catId)||dataUrl;
-  }
-  const ordem=fotos.filter(f=>String(f.produto_id)===String(catId)&&f.produto_id!=='LIXEIRA').length;
-  const nf={id:'f'+Date.now()+Math.random().toString(36).slice(2,8),url,produto_id:catId,ordem,criado_em:hoje()};
-  fotos.unshift(nf);
-  sbPush('fotos',nf);
-  saveLocal(); renderFotos();
-  addLog('foto','foto adicionada ao criar produto',catId);
-}
 let actLog = [];
 function logNow(){ const n=new Date(); return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
 function addLog(tipo, action, detail){
