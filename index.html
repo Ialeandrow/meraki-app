@@ -1317,9 +1317,6 @@ let prodEditId = null;          // id do produto sendo editado (null = novo)
 let prodFotosPendentes = [];    // fotos adicionadas antes de salvar (novo produto)
 
 function abrirModalNovoProduto(editId){
-  // Fechar qualquer modal aberto primeiro
-  fecharModal('prodModalOv');
-
   prodEditId = editId || null;
   prodFotosPendentes = [];
 
@@ -1583,9 +1580,9 @@ function renderEstoque(){
     const thumbHtml=fotoUrl?`<img src="${fotoUrl}" loading="lazy">`:`<div class="pli-ph ${THUMBS2[ti]}"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.4"><path d="M20.38 18.01L13 10.28V8.5a2.5 2.5 0 1 0-3 0v.92L3.62 18c-.54.54-.16 1.5.6 1.5h16.17c.76 0 1.14-.96.6-1.5z"/></svg></div>`;
     const chips=SIZES.map(sz=>{ const q=parseInt(sizes[sz])||0; return `<span class="chip${q===0?' z':''}">${sz}:${q}</span>`; }).join('');
     const tecMeta=p.tecido?' · '+p.tecido:'';
-    return `<div class="pli" onclick="abrirQsale('${p.id}')">
-      <div class="pli-t">${thumbHtml}</div>
-      <div class="pli-i">
+    return `<div class="pli">
+      <div class="pli-t" onclick="abrirQsale('${p.id}')" style="cursor:pointer">${thumbHtml}</div>
+      <div class="pli-i" onclick="abrirQsale('${p.id}')" style="cursor:pointer">
         <div class="pli-n">${p.nome||''}</div>
         <div class="pli-m">${p.cor||''}${tecMeta}</div>
         <div class="chips">${chips}</div>
@@ -1593,9 +1590,9 @@ function renderEstoque(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:7px">
         <div class="pli-s ${sc}">${st}</div>
-        <button type="button" style="width:28px;height:28px;border-radius:50%;background:var(--bg2);border:.5px solid var(--bg3);color:var(--ink3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirModalNovoProduto('${p.id}')" title="Editar">✎</button>
-        <button type="button" class="abtn g" style="width:28px;height:28px;border-radius:50%;background:rgba(92,138,118,.9);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRepos('${p.id}')" title="Repor">+</button>
-        <button type="button" class="abtn r" style="width:28px;height:28px;border-radius:50%;background:rgba(192,57,43,.15);color:var(--err);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation();abrirRemoverEstoque('${p.id}')" title="Remover">−</button>
+        <button type="button" style="width:28px;height:28px;border-radius:50%;background:var(--bg2);border:.5px solid var(--bg3);color:var(--ink3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="abrirModalNovoProduto('${p.id}')" title="Editar">✎</button>
+        <button type="button" class="abtn g" style="width:28px;height:28px;border-radius:50%;background:rgba(92,138,118,.9);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="abrirRepos('${p.id}')" title="Repor">+</button>
+        <button type="button" class="abtn r" style="width:28px;height:28px;border-radius:50%;background:rgba(192,57,43,.15);color:var(--err);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;" onclick="abrirRemoverEstoque('${p.id}')" title="Remover">−</button>
       </div>
     </div>`;
   }).join('');
