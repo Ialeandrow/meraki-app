@@ -1581,7 +1581,7 @@ function renderEstoque(){
     const chips=SIZES.map(sz=>{ const q=parseInt(sizes[sz])||0; return `<span class="chip${q===0?' z':''}">${sz}:${q}</span>`; }).join('');
     const tecMeta=p.tecido?' · '+p.tecido:'';
     return `<div class="pli" style="flex-direction:column;align-items:stretch;padding:0;gap:0;cursor:default;">
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px 10px;" onclick="abrirQsale('${p.id}')" style="cursor:pointer">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px 10px;cursor:pointer;" onclick="abrirQsale('${p.id}')" >
         <div class="pli-t">${thumbHtml}</div>
         <div class="pli-i">
           <div class="pli-n">${p.nome||''}</div>
@@ -1592,9 +1592,9 @@ function renderEstoque(){
         <div class="pli-s ${sc}">${st}</div>
       </div>
       <div style="display:flex;border-top:.5px solid var(--bg2);">
-        <button type="button" onclick="abrirModalNovoProduto('${p.id}')" style="flex:1;padding:10px 6px;border:none;background:none;font-size:11px;font-weight:700;color:var(--ink3);cursor:pointer;font-family:var(--sans);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">✎ editar</button>
-        <button type="button" onclick="abrirRepos('${p.id}')" style="flex:1;padding:10px 6px;border:none;border-left:.5px solid var(--bg2);background:none;font-size:11px;font-weight:700;color:var(--sage);cursor:pointer;font-family:var(--sans);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">+ repor</button>
-        <button type="button" onclick="abrirRemoverEstoque('${p.id}')" style="flex:1;padding:10px 6px;border:none;border-left:.5px solid var(--bg2);background:none;font-size:11px;font-weight:700;color:var(--err);cursor:pointer;font-family:var(--sans);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">− remover</button>
+        <button type="button" onclick="event.stopPropagation();abrirModalNovoProduto('${p.id}')" style="flex:1;padding:10px 6px;border:none;background:none;font-size:11px;font-weight:700;color:var(--ink3);cursor:pointer;font-family:var(--sans);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">✎ editar</button>
+        <button type="button" onclick="event.stopPropagation();abrirRepos('${p.id}')" style="flex:1;padding:10px 6px;border:none;border-left:.5px solid var(--bg2);background:none;font-size:11px;font-weight:700;color:var(--sage);cursor:pointer;font-family:var(--sans);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">+ repor</button>
+        <button type="button" onclick="event.stopPropagation();abrirRemoverEstoque('${p.id}')" style="flex:1;padding:10px 6px;border:none;border-left:.5px solid var(--bg2);background:none;font-size:11px;font-weight:700;color:var(--err);cursor:pointer;font-family:var(--sans);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">− remover</button>
       </div>
     </div>`;
   }).join('');
