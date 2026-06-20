@@ -584,6 +584,164 @@ body{display:flex;align-items:center;justify-content:center;}
 *{transition-timing-function:cubic-bezier(.25,.46,.45,.94);}
 /* ══ end premium upgrade ═══════════════════════════════════════════════ */
 </style>
+<style id="meraki-premium">
+/* ══ meraki premium v3 ══════════════════════════════════════════════════ */
+
+/* grain texture */
+@keyframes mkGrain{0%,100%{transform:translate(0,0)}10%{transform:translate(-1px,1px)}20%{transform:translate(1px,-1px)}30%{transform:translate(-1px,0)}40%{transform:translate(1px,1px)}50%{transform:translate(0,-1px)}60%{transform:translate(-1px,1px)}70%{transform:translate(1px,0)}80%{transform:translate(-1px,-1px)}90%{transform:translate(1px,1px)}}
+.login::after,.hdr::after{
+  content:'';position:absolute;inset:-50%;width:200%;height:200%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity:.032;pointer-events:none;z-index:0;
+  animation:mkGrain 8s steps(1) infinite;
+}
+.login>*,.hdr>*{position:relative;z-index:1;}
+
+/* login logo styling */
+.mk-login-logo{
+  width:96px;height:96px;margin:0 auto 16px;display:block;
+  animation:mkLogoFloat 5s ease-in-out infinite;
+  filter:drop-shadow(0 0 24px rgba(121,129,105,.25));
+}
+@keyframes mkLogoFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+
+/* login enhancements */
+.login{
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(121,129,105,.09) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(77,122,102,.05) 0%, transparent 60%),
+    #0f0f0f !important;
+}
+.l-logo{
+  font-size:48px !important;
+  background:linear-gradient(135deg,#fff 40%,rgba(174,177,158,.6));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.l-sub{
+  font-size:9px !important;
+  letter-spacing:.36em !important;
+  color:transparent !important;
+  background:linear-gradient(90deg,#798169,#AEB19E,#798169);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  background-size:200% auto;
+  animation:mkSubShimmer 4s linear infinite;
+}
+@keyframes mkSubShimmer{0%{background-position:0% center}100%{background-position:200% center}}
+.l-inp:focus{
+  border-color:#798169 !important;
+  box-shadow:0 0 0 3px rgba(121,129,105,.14) !important;
+}
+.l-btn{
+  background:linear-gradient(135deg,#4d7a66,#798169) !important;
+  box-shadow:0 4px 20px rgba(77,122,102,.28) !important;
+  transition:transform .15s,box-shadow .15s !important;
+}
+.l-btn:hover{transform:translateY(-1px)!important;box-shadow:0 6px 24px rgba(77,122,102,.38)!important;}
+.l-btn:active{transform:translateY(0)!important;}
+
+/* header enhancements */
+.hdr{
+  box-shadow:0 1px 0 rgba(255,255,255,.04),0 4px 24px rgba(0,0,0,.35) !important;
+}
+.hdr-logo{
+  font-weight:500 !important;
+  letter-spacing:.06em !important;
+}
+.mk-hdr-logo-wrap{
+  display:flex;align-items:center;gap:9px;
+}
+.mk-hdr-logo-icon{
+  width:28px;height:28px;display:inline-flex;flex-shrink:0;
+  filter:drop-shadow(0 0 6px rgba(121,129,105,.3));
+}
+
+/* ── CHART FIX — botões 7d/30d sempre visíveis ─────────────────────── */
+.ch{
+  position:relative !important;
+  z-index:10 !important;
+  background:#fff !important;
+  padding-bottom:4px !important;
+}
+.ctg{
+  position:relative !important;
+  z-index:11 !important;
+}
+.cbars,#chartBars{
+  overflow:hidden !important;
+  position:relative !important;
+  z-index:1 !important;
+}
+/* value labels: show above bars using absolute positioning */
+.bw,.chart-bar-wrap{
+  position:relative !important;
+}
+.bval,.chart-bar-val{
+  position:absolute !important;
+  top:-14px !important;
+  left:0 !important;right:0 !important;
+  height:auto !important;
+  font-size:7px !important;
+  text-align:center !important;
+  z-index:2 !important;
+}
+.cbars,#chartBars{
+  margin-top:16px !important;
+}
+
+/* hero block */
+.hero{
+  background:
+    radial-gradient(ellipse 60% 60% at 90% 20%,rgba(121,129,105,.12) 0%,transparent 70%),
+    #0f0f0f !important;
+  box-shadow:0 8px 32px rgba(0,0,0,.25) !important;
+}
+.h-val{
+  background:linear-gradient(135deg,#fff 50%,rgba(255,255,255,.55));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+/* stat cards */
+.stat{
+  transition:box-shadow .2s,transform .2s !important;
+}
+.stat:active{
+  transform:scale(.98) !important;
+  box-shadow:0 1px 4px rgba(0,0,0,.06) !important;
+}
+
+/* product/category cards */
+.prod-card,.cat-card,[class*="-card"]{
+  transition:box-shadow .22s,transform .22s !important;
+}
+.prod-card:hover,.cat-card:hover{
+  box-shadow:0 8px 24px rgba(0,0,0,.1) !important;
+  transform:translateY(-2px) !important;
+}
+
+/* bottom nav active indicator */
+.nb.on svg{
+  filter:drop-shadow(0 0 6px rgba(106,158,135,.5)) !important;
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(121,129,105,.2);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(121,129,105,.4);}
+
+/* global easing */
+button,a,.nb,.hdr-btn,.l-btn,.ctb{
+  transition-timing-function:cubic-bezier(.25,.46,.45,.94) !important;
+}
+
+/* ══ end meraki premium v3 ══════════════════════════════════════════════ */
+</style>
 </head>
 <body>
 <div class="shell">
@@ -605,7 +763,7 @@ body{display:flex;align-items:center;justify-content:center;}
 
 <!-- LOGIN -->
 <div class="login" id="loginScreen">
-  <div class="l-logo">meraki</div>
+  <svg class="mk-login-logo" version="1.0" viewBox="0 0 2000 2000" xmlns="http://www.w3.org/2000/svg"><g><g><g><g><path style="fill:#AEB19E" d="M531.45,576.04h25.02v44.64h1.96c19.13-33.36,47.1-47.1,74.57-47.1c37.29,0,63.29,14.72,70.16,54.45c21.09-52.49,65.74-53.47,79.96-53.47c47.1,0,72.12,33.85,72.12,79.97v164.34h-25.02V646.68c0-4.42-0.49-8.83-0.98-13.74c-3.92-24.04-17.66-50.53-54.95-50.53c-40.23,0-69.17,35.81-69.17,76.04v160.42h-25.51V655.02c0-34.34-5.4-73.1-49.06-73.1c-45.14,0-72.61,37.77-72.61,82.42v154.54h-26.49V576.04z"/><path style="fill:#AEB19E" d="M1079.91,731.06c-1.47,62.79-41.21,91.25-84.87,91.25c-81.44,0-103.02-49.06-103.02-119.7c0-101.55,53.47-129.02,96.65-129.02c59.36,0,90.76,38.26,90.76,102.53V682H921.45c-0.49,3.44-0.49,6.38-0.49,8.83c0,51.51,6.38,124.12,73.59,124.12c48.57,0,76.04-33.85,78-83.89H1079.91z M921.45,674.64h129.51c0-61.32-25.51-93.21-64.27-93.21C951.86,581.43,925.87,605.47,921.45,674.64z"/></g></g><g><g><path style="fill:#AEB19E" d="M884.91,1109.54H859.4c0-90.27-0.49-149.14-0.49-242.35h5.4l17.17,65.74h1.96c8.83-40.72,34.83-69.17,75.55-69.17c6.38,0,12.75,0.49,19.62,1.96v25.51c-9.81-2.45-18.64-3.44-26.98-3.44c-44.15,0-66.72,32.87-66.72,86.83V1109.54z"/><path style="fill:#AEB19E" d="M1012.46,870.62c9.81-3.43,26.98-5.4,42.19-5.4c51.02,0,69.17,30.42,78,77.51c7.85,39.25,15.7,78,23.55,117.25c6.38,31.89,15.21,43.17,30.42,43.17c1.96,0,3.92,0,5.89-0.49l0.98,7.36c-7.36,2.45-16.19,2.94-20.12,2.94c-26,0-34.34-10.79-41.21-35.32c-21.58,23.55-52,34.34-81.43,34.34c-3.44,0-6.38,0-9.32-0.49c-33.85-3.44-52.98-26-52.98-61.81c0-60.34,63.29-87.81,120.68-88.8c-8.34-43.66-23.06-86.83-68.68-86.83c-6.87,0-16.19,0.49-26,3.43L1012.46,870.62z M1062,1103.65c24.04,0,52.98-13.74,68.19-33.36c-6.87-28.94-13.25-65.74-20.12-103.02c-80.45,2.94-93.7,52.98-93.7,78C1016.38,1085.01,1032.08,1103.65,1062,1103.65z"/></g></g><g><g><path style="fill:#AEB19E" d="M1225.72,1440.18l-0.49-392.47h26.98v344.39l130.49-208.99h22.08l-68.68,99.59l77.02,143.25h-29.43l-63.78-119.21l-91.74,133.44H1225.72z"/><path style="fill:#AEB19E" d="M1447.94,1078.13c10.79,0,19.62,9.32,19.62,19.62c0,11.28-8.83,20.11-19.62,20.11c-11.28,0-20.12-8.83-20.12-20.11C1427.83,1087.46,1436.66,1078.13,1447.94,1078.13z M1459.22,1183.12v242.84h-26.98c0-80.95,0.49-161.89,0.49-242.84H1459.22z"/></g></g></g><circle style="fill:#798169" cx="1673.8" cy="991.06" r="22.53"/><circle style="fill:#798169" cx="1476.3" cy="1467.86" r="22.53"/><circle style="fill:#798169" cx="999.5" cy="1665.36" r="22.53"/><circle style="fill:#798169" cx="522.71" cy="1467.86" r="22.53"/><circle style="fill:#798169" cx="325.21" cy="991.06" r="22.53"/><circle style="fill:#798169" cx="522.71" cy="514.27" r="22.53"/><circle style="fill:#798169" cx="999.5" cy="316.77" r="22.53"/><circle style="fill:#798169" cx="1476.3" cy="514.27" r="22.53"/><circle style="fill:#AEB19E" cx="1665.72" cy="1095.12" r="10.11"/><circle style="fill:#AEB19E" cx="1397.01" cy="1535.73" r="10.11"/><circle style="fill:#AEB19E" cx="895.45" cy="1657.28" r="10.11"/><circle style="fill:#AEB19E" cx="454.84" cy="1388.57" r="10.11"/><circle style="fill:#AEB19E" cx="333.29" cy="887.01" r="10.11"/><circle style="fill:#AEB19E" cx="602" cy="446.4" r="10.11"/><circle style="fill:#AEB19E" cx="1103.56" cy="324.85" r="10.11"/><circle style="fill:#AEB19E" cx="1544.17" cy="593.55" r="10.11"/></g></svg>
   <div class="l-sub">fitcon · gestão</div>
   <label class="l-lbl">senha de acesso</label>
   <input class="l-inp" id="pwInput" type="password" placeholder="••••••••" autocomplete="current-password"/>
