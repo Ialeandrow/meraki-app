@@ -1177,6 +1177,10 @@ function getFotoPrincipal(p){
     .sort((a,b)=>(parseInt(a.ordem)||0)-(parseInt(b.ordem)||0));
   return fps.length?fps[0].url:null;
 }
+function fotosDoProduto(id){
+  return fotos.filter(f=>String(f.produto_id)===String(id)&&f.produto_id!=='LIXEIRA')
+    .sort((a,b)=>(parseInt(a.ordem)||0)-(parseInt(b.ordem)||0));
+}
 
 // ── Toast ──────────────────────────────────────────────
 let _toastTimer=null;
